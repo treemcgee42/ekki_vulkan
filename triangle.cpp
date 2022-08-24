@@ -25,4 +25,6 @@ void Triangle::set_color(float r, float g, float b, float a) {
 
 glm::vec4 Triangle::get_color() { return color; }
 
+
+
 }

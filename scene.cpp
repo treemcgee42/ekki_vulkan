@@ -16,18 +16,18 @@ struct SimplePushConstantData {
 void Scene::draw(Engine& engine, VkCommandBuffer commandBuffer) {
     engine.render_system.lvePipeline->bind(commandBuffer);
 
-    for (Triangle obj : active_objects) {
+    for (const auto& obj : active_objects) {
         SimplePushConstantData push{};
-        glm::mat4 scale_matrix{obj.getScale()};
+        glm::mat4 scale_matrix{obj->getScale()};
         scale_matrix[3] = {0, 0, 0, 1};
         glm::mat4 translation_matrix = {
                 {1.0, 0, 0, 0},
                 {0, 1.0, 0, 0},
                 {0, 0, 1.0, 0},
-                {obj.getTranslationComponent(0), obj.getTranslationComponent(1), 0, 1}
+                {obj->getTranslationComponent(0), obj->getTranslationComponent(1), 0, 1}
         };
         push.model_matrix = translation_matrix * scale_matrix;
-        push.color = obj.get_color();
+        push.color = obj->get_color();
 
         //std::cout << glm::to_string(push.model_matrix) << "\n";
 
@@ -39,6 +39,10 @@ void Scene::draw(Engine& engine, VkCommandBuffer commandBuffer) {
         model->bind(commandBuffer);
         model->draw(commandBuffer);
     }
+}
+
+bool Scene::update() {
+    return animation.update();
 }
 
 }

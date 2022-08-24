@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "animation.hpp"
 #include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
 #include "vulkan-backend/lve_model.hpp"
@@ -15,6 +14,8 @@ class Triangle {
 public:
     Triangle() = default;
     ~Triangle() = default;
+
+    static std::shared_ptr<Triangle> create() { return std::make_shared<Triangle>(); }
 
     float getScale();
     glm::vec2 getTranslation();
@@ -29,6 +30,8 @@ public:
 
     void set_color(float r, float g, float b, float a);
     glm::vec4 get_color();
+
+
 
 private:
     float scale{1.0};

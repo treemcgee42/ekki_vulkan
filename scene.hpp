@@ -16,11 +16,11 @@ class Scene {
 public:
     ~Scene() = default;
 
-    // void update();
+    bool update();
     void draw(Engine& engine, VkCommandBuffer commandBuffer);
 
     Animation animation{0};
-    std::forward_list<Triangle> active_objects{};
+    std::forward_list<std::shared_ptr<Triangle>> active_objects{};
 
 private:
 
