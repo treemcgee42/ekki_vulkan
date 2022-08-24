@@ -38,8 +38,6 @@ void Scene::draw(Engine& engine, VkCommandBuffer commandBuffer) {
         push.model_matrix = translation_matrix * scale_matrix;
         push.color = obj->get_color();
 
-        //std::cout << glm::to_string(push.model_matrix) << "\n";
-
         vkCmdPushConstants(commandBuffer, engine.render_system.pipelineLayout,
                            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                            sizeof(SimplePushConstantData), &push);

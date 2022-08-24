@@ -34,14 +34,6 @@ public:
         remaining_duration{duration}
     {}
 
-    /**
-     * Constructs an instance and returns it wrapped in a unique pointer. Animations typically exist to
-     * be placed on a queue. Furthermore, they mutate the object they point to, and so they really should
-     * not exist in more than one place at once.
-     */
-    static std::unique_ptr<Animation> create(double duration);
-    static std::unique_ptr<Animation> create2(const std::shared_ptr<Triangle>& obj, double duration);
-
     Animation(const Animation &) = delete;
     void operator=(const Animation &) = delete;
 
@@ -71,7 +63,18 @@ public:
      * count. The subtlety is that the constructor to `Animation` class will copy by value and increase the
      * reference count, since it must retain and mutate the object.
      */
-    static std::unique_ptr<ScaleIn> create_scale_in(const std::shared_ptr<Triangle>& t, double duration);
+    static std::unique_ptr<ScaleIn> create(const std::shared_ptr<Triangle>& t, double duration);
+};
+
+class LinearShift: public Animation {
+public:
+    LinearShift(std::shared_ptr<Triangle> t, const glm::vec2& shift, double duration);
+    static std::unique_ptr<LinearShift> create(const std::shared_ptr<Triangle>& t, const glm::vec2& target, double duration);
+
+    void update() override;
+private:
+    const glm::vec2 target_position;
+    std::function<glm::vec2(float)> translation_func;
 };
 
 }

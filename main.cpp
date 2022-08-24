@@ -58,7 +58,8 @@ int main() {
     t3->scale_absolute(0.25);
     t3->set_color(0.0, 1.0, 0.0, 0.1);
 
-    scene1.add_animation(eklib::ScaleIn::create_scale_in(t3, 5));
+    scene1.add_animation(eklib::ScaleIn::create(t3, 5));
+    scene1.add_animation(eklib::LinearShift::create(t3, {-0.25, 0.25}, 5));
 
     scene1.add_active_object(t1);
     scene1.add_active_object(t2);
