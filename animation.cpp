@@ -12,7 +12,7 @@ std::unique_ptr<Animation> Animation::create(double duration) {
     return std::make_unique<Animation>(duration);
 }
 
-std::unique_ptr<Animation> Animation::create2(std::shared_ptr<Triangle> obj, double duration) {
+std::unique_ptr<Animation> Animation::create2(const std::shared_ptr<Triangle>& obj, double duration) {
     return std::make_unique<Animation>(obj, duration);
 }
 
@@ -20,33 +20,9 @@ void Animation::add_child(std::unique_ptr<Animation> animation) {
     children.push_back(std::move(animation));
 }
 
-/**
- * Calls `update()` on the first child, if one exists.
- */
-bool Animation::update() {
-    if (children.empty()) {
-        return false;
-    }
-
-    std::unique_ptr<Animation> &current_animation = children.front();
-
-    current_animation->update();
-
-    current_animation->remaining_duration -= MS_PER_UPDATE;
-    if (current_animation->remaining_duration < 0) {
-        children.pop_front();
-    }
-
-    return true;
-}
-
-bool ScaleIn::update() {
+void ScaleIn::update() {
     auto obj = *acting_on;
     obj->scale_absolute(static_cast<float>(std::min(1.0, 1.0 - remaining_duration/total_duration)));
-
-    return true;
-
-    // need to recursively call update
 }
 
 std::unique_ptr<ScaleIn> ScaleIn::create_scale_in(const std::shared_ptr<Triangle>& t, double duration) {

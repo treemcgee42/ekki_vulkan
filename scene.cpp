@@ -3,6 +3,7 @@
 //
 
 #include "scene.hpp"
+#include "constants.hpp"
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
 
@@ -12,6 +13,14 @@ struct SimplePushConstantData {
     glm::mat4 model_matrix{1.f};
     glm::vec4 color{1, 0, 0, 1};
 };
+
+void Scene::add_animation(std::unique_ptr<Animation> animation) {
+    animation_queue.push_back(std::move(animation));
+}
+
+void Scene::add_active_object(const std::shared_ptr<Triangle>& object) {
+    active_objects.push_front(object);
+}
 
 void Scene::draw(Engine& engine, VkCommandBuffer commandBuffer) {
     engine.render_system.lvePipeline->bind(commandBuffer);
@@ -41,8 +50,21 @@ void Scene::draw(Engine& engine, VkCommandBuffer commandBuffer) {
     }
 }
 
-bool Scene::update() {
-    return animation.update();
+/**
+ * Represents a "tick" update. According to the game loop model, this tick is always
+ * of length `MS_PER_UPDATE`.
+ */
+void Scene::update() {
+    if (animation_queue.empty()) { return; }
+
+    std::unique_ptr<Animation> &current_animation = animation_queue.front();
+
+    current_animation->update();
+    current_animation->decrement_remaining_duration(MS_PER_UPDATE);
+
+    if (current_animation->get_remaining_duration() < 0) {
+        animation_queue.pop_front();
+    }
 }
 
 }

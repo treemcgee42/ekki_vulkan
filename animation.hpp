@@ -12,6 +12,9 @@
 
 namespace eklib {
 
+/**
+ * How to achieve animation of several objects at the same time?
+ */
 class Animation {
 public:
     /**
@@ -37,14 +40,15 @@ public:
      * not exist in more than one place at once.
      */
     static std::unique_ptr<Animation> create(double duration);
-    static std::unique_ptr<Animation> create2(std::shared_ptr<Triangle> obj, double duration);
+    static std::unique_ptr<Animation> create2(const std::shared_ptr<Triangle>& obj, double duration);
 
     Animation(const Animation &) = delete;
     void operator=(const Animation &) = delete;
 
-    void add_child(std::unique_ptr<Animation> animation);
-    virtual bool update();
+    virtual void update() {}
 
+    [[nodiscard]] double get_remaining_duration() const { return remaining_duration; }
+    void decrement_remaining_duration(double amount) { remaining_duration -= amount; }
 private:
     std::list<std::unique_ptr<Animation>> children{std::list<std::unique_ptr<Animation>>()};
 protected:
@@ -60,7 +64,7 @@ class ScaleIn: public Animation {
 public:
     ScaleIn(std::shared_ptr<Triangle> t, double duration): Animation{std::move(t), duration} {}
 
-    bool update() override;
+    void update() override;
 
     /**
      * The object is passed as a const reference because the function itself need not increase the reference
@@ -69,7 +73,5 @@ public:
      */
     static std::unique_ptr<ScaleIn> create_scale_in(const std::shared_ptr<Triangle>& t, double duration);
 };
-
-
 
 }

@@ -33,7 +33,6 @@ void do_scene(eklib::Engine& engine, eklib::Scene& scene) {
         if (auto commandBuffer = engine.lveRenderer.beginFrame()) {
             engine.lveRenderer.beginSwapChainRenderPass(commandBuffer);
             scene.draw(engine, commandBuffer);
-            ///simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects);
             engine.lveRenderer.endSwapChainRenderPass(commandBuffer);
             engine.lveRenderer.endFrame();
         }
@@ -59,11 +58,11 @@ int main() {
     t3->scale_absolute(0.25);
     t3->set_color(0.0, 1.0, 0.0, 0.1);
 
-    scene1.animation.add_child(eklib::ScaleIn::create_scale_in(t3, 5));
+    scene1.add_animation(eklib::ScaleIn::create_scale_in(t3, 5));
 
-    scene1.active_objects.push_front(t1);
-    scene1.active_objects.push_front(t2);
-    scene1.active_objects.push_front(t3);
+    scene1.add_active_object(t1);
+    scene1.add_active_object(t2);
+    scene1.add_active_object(t3);
 
     do_scene(engine, scene1);
 }
