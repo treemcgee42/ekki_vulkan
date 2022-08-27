@@ -22,6 +22,8 @@ class LveWindow {
 
     void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
 
+    [[nodiscard]] GLFWwindow* get_glfw_window() const { return window; }
+
    private:
     GLFWwindow *window;
     std::string windowName;

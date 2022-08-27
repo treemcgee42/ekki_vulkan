@@ -63,6 +63,11 @@ class LveDevice {
     void createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties,
                              VkImage &image, VkDeviceMemory &imageMemory);
 
+    [[nodiscard]] VkInstance get_VkInstance() const { return instance; }
+    [[nodiscard]] VkPhysicalDevice get_VkPhysicalDevice() const { return physicalDevice; }
+    [[nodiscard]] VkDevice get_VkDevice() const { return device_; }
+    [[nodiscard]] VkQueue get_graphics_queue() const { return graphicsQueue_; };
+
     VkPhysicalDeviceProperties properties;
 
    private:

@@ -21,10 +21,12 @@ public:
     static constexpr int WIDTH = 800;
     static constexpr int HEIGHT = 600;
 
-    ~Engine()= default;
+    ~Engine() = default;
 
-    Engine(Engine const&) = delete;
-    Engine& operator=(Engine const&) = delete;
+    //Engine(Engine const&) = delete;
+    //Engine& operator=(Engine const&) = delete;
+
+    void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function);
 
     lve::LveWindow lveWindow{WIDTH, HEIGHT, "Hello Vulkan!"};
     lve::LveDevice lveDevice{lveWindow};

@@ -3,6 +3,7 @@
 #include "vulkan-backend/simple_render_system.hpp"
 #include "scene.hpp"
 #include "constants.hpp"
+#include "gui.hpp"
 
 // std
 #include <cstdlib>
@@ -10,7 +11,7 @@
 #include <stdexcept>
 #include <chrono>
 
-void do_scene(eklib::Engine& engine, eklib::Scene& scene) {
+void do_scene(eklib::Engine& engine, Gui& gui, eklib::Scene& scene) {
     auto base_time = std::chrono::steady_clock::now();
 
     auto prev_time = std::chrono::steady_clock::now();
@@ -29,9 +30,18 @@ void do_scene(eklib::Engine& engine, eklib::Scene& scene) {
             scene.update();
         }
 
+        // GUI
+        ImGui_ImplVulkan_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow();
+
         // RENDER
         if (auto commandBuffer = engine.lveRenderer.beginFrame()) {
             engine.lveRenderer.beginSwapChainRenderPass(commandBuffer);
+            ImGui::Render();
+            ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), engine.lveRenderer.getCurrentCommandBuffer());
             scene.draw(engine, commandBuffer);
             engine.lveRenderer.endSwapChainRenderPass(commandBuffer);
             engine.lveRenderer.endFrame();
@@ -39,10 +49,15 @@ void do_scene(eklib::Engine& engine, eklib::Scene& scene) {
     }
 
     vkDeviceWaitIdle(engine.lveDevice.device());
+
+    vkDestroyDescriptorPool(engine.lveDevice.device(), gui.imgui_descriptor_pool, nullptr);
+    ImGui_ImplVulkan_Shutdown();
 }
 
 int main() {
     eklib::Engine engine{};
+    Gui gui{};
+    gui.init_imgui(engine);
 
     eklib::Scene scene1{};
 
@@ -65,7 +80,7 @@ int main() {
     scene1.add_active_object(t2);
     scene1.add_active_object(t3);
 
-    do_scene(engine, scene1);
+    do_scene(engine, gui, scene1);
 }
 
 int main2() {
@@ -80,6 +95,7 @@ int main2() {
 
     return EXIT_SUCCESS;
 }
+
 
 
 

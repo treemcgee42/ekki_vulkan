@@ -31,10 +31,17 @@ class LveRenderer {
         return commandBuffers[currentFrameIndex];
     }
 
+    VkCommandBuffer unsafe_getCurrentCommandBuffer() const {
+        //assert(isFrameStarted && "Cannot get command buffer when frame not in progress");
+        return commandBuffers[currentFrameIndex];
+    }
+
     int getFrameIndex() const {
         assert(isFrameStarted && "Cannot get frame index when frame not in progress");
         return currentFrameIndex;
     }
+
+    [[nodiscard]] size_t get_image_count() const { return lveSwapChain->imageCount(); }
 
    private:
     LveWindow &lveWindow;
