@@ -47,6 +47,12 @@ void Gui::init_imgui(eklib::Engine& engine) {
     //this initializes the core structures of imgui
     ImGui::CreateContext();
 
+    auto io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+    ImGui::StyleColorsLight();
+
     //this initializes imgui for SDL
     //ImGui_ImplSDL2_InitForVulkan(_window);
     ImGui_ImplGlfw_InitForVulkan(engine.lveWindow.get_glfw_window(), true);

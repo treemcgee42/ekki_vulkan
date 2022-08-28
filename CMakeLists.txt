@@ -12,16 +12,10 @@ SET(CMAKE_BUILD_WITH_INSTALL_RPATH true)
 include_directories(${VULKAN_SDK_PATH}/include /usr/local/include)
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(libs/imgui/include)
+include_directories(libs/vma/include)
 
 file(GLOB SOURCES
     main.cpp
-        libs/imgui/imgui.cpp
-        libs/imgui/imgui_demo.cpp
-        libs/imgui/imgui_draw.cpp
-        libs/imgui/imgui_impl_glfw.cpp
-        libs/imgui/imgui_impl_vulkan.cpp
-        libs/imgui/imgui_tables.cpp
-        libs/imgui/imgui_widgets.cpp
         libs/imgui/include/imconfig.h
         libs/imgui/include/imgui.h
         libs/imgui/include/imgui_impl_glfw.h
@@ -30,6 +24,14 @@ file(GLOB SOURCES
         libs/imgui/include/imstb_rectpack.h
         libs/imgui/include/imstb_textedit.h
         libs/imgui/include/imstb_truetype.h
+        libs/imgui/imgui.cpp
+        libs/imgui/imgui_demo.cpp
+        libs/imgui/imgui_draw.cpp
+        libs/imgui/imgui_impl_glfw.cpp
+        libs/imgui/imgui_impl_vulkan.cpp
+        libs/imgui/imgui_tables.cpp
+        libs/imgui/imgui_widgets.cpp
+        libs/vma/vma_implementation.cpp
         vulkan-backend/first_app.hpp
         vulkan-backend/first_app.cpp
         vulkan-backend/lve_device.hpp
@@ -47,6 +49,7 @@ file(GLOB SOURCES
         vulkan-backend/lve_window.cpp
         vulkan-backend/simple_render_system.hpp
         vulkan-backend/simple_render_system.cpp
+        vulkan-backend/custom/*
         animation.hpp
         animation.cpp
         constants.hpp

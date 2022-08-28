@@ -40,9 +40,11 @@ void do_scene(eklib::Engine& engine, Gui& gui, eklib::Scene& scene) {
         // RENDER
         if (auto commandBuffer = engine.lveRenderer.beginFrame()) {
             engine.lveRenderer.beginSwapChainRenderPass(commandBuffer);
+            scene.draw(engine, commandBuffer);
             ImGui::Render();
             ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), engine.lveRenderer.getCurrentCommandBuffer());
-            scene.draw(engine, commandBuffer);
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
             engine.lveRenderer.endSwapChainRenderPass(commandBuffer);
             engine.lveRenderer.endFrame();
         }
