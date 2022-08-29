@@ -4,7 +4,7 @@
 
 #pragma once
 
-//#define GLFW_INCLUDE_VULKAN
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <string>
 
@@ -23,9 +23,16 @@ public:
 
     VkbeWindow(const VkbeWindow &) = delete;
     VkbeWindow &operator=(const VkbeWindow &) = delete;
+
+    VkExtent2D get_extent() const { return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)}; }
+    bool was_resized() { return resized; }
+    void reset_resized_flag() { resized = false; }
 private:
     int height;
     int width;
+    bool resized = false;
+
+    static void resize_callback(GLFWwindow *window, int width, int height);
 };
 
 }

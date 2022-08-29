@@ -18,23 +18,7 @@ namespace vkbe {
     const bool VKBE_CONFIG_ENABLE_VALIDATION_LAYERS = true;
 #endif
 
-#ifdef NDEBUG
-    void vkbe_check_vk_result_panic(VkResult result, const char **msg) {}
-#else
-/**
- * This "panic" version of Vulkan result checking means that the program will terminate
- * upon failure. Presumably, this is not always desirable. The only "successful" result
- * is considered to be `VK_SUCCESS`.
- */
-    void vkbe_check_vk_result_panic(VkResult result, const char *msg) {
-        if (result == VK_SUCCESS) { return; }
-
-        std::ostringstream error_msg;
-        error_msg << "[vkbe::Vulkan] error: VkResult = " << result << ". " << msg << "\n";
-
-        throw std::runtime_error(error_msg.str());
-    }
-#endif
+void vkbe_check_vk_result_panic(VkResult result, const char *msg);
 
 const std::vector<const char *> VKBE_CONFIG_VALIDATION_LAYERS = {"VK_LAYER_KHRONOS_validation"};
 // Window extensions, such as those from GLFW, are not included here.
@@ -58,5 +42,10 @@ const std::array VKBE_CONFIG_APP_VERSION = {1, 0, 0};
 const std::string VKBE_CONFIG_APP_ENGINE_NAME = "no engine";
 const std::array VKBE_CONFIG_APP_ENGINE_VERSION = {1, 0, 0};
 const uint32_t VKBE_CONFIG_API_VERSION = VK_API_VERSION_1_0;
+
+// Swap chain
+const VkFormat VKBE_CONFIG_SURFACE_FORMAT = VK_FORMAT_B8G8R8A8_SRGB;
+const VkColorSpaceKHR VKBE_CONFIG_SURFACE_COLORSPACE = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+const VkPresentModeKHR VKBE_CONFIG_PREFERRED_PRESENT_MODE = VK_PRESENT_MODE_MAILBOX_KHR;
 
 }

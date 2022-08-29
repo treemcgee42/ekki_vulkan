@@ -6,6 +6,13 @@
 
 namespace vkbe {
 
+void VkbeWindow::resize_callback(GLFWwindow *window, int width, int height) {
+    auto vkbe_window = reinterpret_cast<VkbeWindow *>(glfwGetWindowUserPointer(window));
+    vkbe_window->resized = true;
+    vkbe_window->width = width;
+    vkbe_window->height = height;
+}
+
 VkbeWindow::VkbeWindow(int w, int h, const std::string& windowName):
     width{w},
     height{h}
@@ -17,8 +24,7 @@ VkbeWindow::VkbeWindow(int w, int h, const std::string& windowName):
     window = glfwCreateWindow(width, height, windowName.c_str(), nullptr, nullptr);
 
     glfwSetWindowUserPointer(window, this);
-    // TODO
-    // glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+    glfwSetFramebufferSizeCallback(window, resize_callback);
 }
 
 VkbeWindow::~VkbeWindow() {

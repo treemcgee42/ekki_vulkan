@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "vkbe_window.hpp"
+#include "vkbe_config.hpp"
 
 namespace vkbe {
 
@@ -40,6 +41,16 @@ public:
 
     VkbeDevice(const VkbeDevice &) = delete;
     VkbeDevice &operator=(const VkbeDevice &) = delete;
+
+    void create_image(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory) const;
+    [[nodiscard]] VkFormat find_supported_format(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+
+    [[nodiscard]] VkPhysicalDevice get_physical_device() const { return physical_device; }
+    [[nodiscard]] VkSurfaceKHR get_vulkan_surface() const { return surface; }
+    [[nodiscard]] VkDevice get_logical_device() const { return logical_device; }
+    [[nodiscard]] VkCommandPool get_command_pool() const { return command_pool; }
+    [[nodiscard]] VkQueue get_graphics_queue() const { return graphics_queue; }
+    [[nodiscard]] VkQueue get_present_queue() const { return present_queue; }
 private:
     VkInstance instance;
     VkDebugUtilsMessengerEXT debug_messenger;

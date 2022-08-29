@@ -3,7 +3,6 @@
 //
 
 #include "vkbe_device.hpp"
-#include "vkbe_config.hpp"
 #include "vkbe_swap_chain.hpp"
 #include <iostream>
 #include <set>
@@ -379,7 +378,80 @@ VkbeDevice::VkbeDevice(VkbeWindow& vkbe_window) {
     pick_physical_device();
     create_logical_device();
     get_queues_from_logical_device();
+    // TODO: should this be happening here?
     create_command_pool();
+}
+
+// --------------------------------------------------------------------------------
+// ----- Helpers for public functions ---------------------------------------------
+// --------------------------------------------------------------------------------
+
+uint32_t find_memory_type(VkPhysicalDevice physical_device, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(physical_device, &memProperties);
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+        if ((typeFilter & (1 << i)) &&
+            (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+            return i;
+        }
+    }
+
+    throw std::runtime_error("failed to find suitable memory type!");
+}
+
+// --------------------------------------------------------------------------------
+// ----- Public functions ---------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+/**
+ * Checks if the device supports any of the provided features. This will not pick the most
+ * optimized format, merely the first that is supported. One could work around this by placing
+ * the ideal formats at the front of the list of candidates.
+ */
+VkFormat VkbeDevice::find_supported_format(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const {
+    for (VkFormat format : candidates) {
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(physical_device, format, &props);
+
+        if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+            return format;
+        } else if (tiling == VK_IMAGE_TILING_OPTIMAL &&
+                   (props.optimalTilingFeatures & features) == features) {
+            return format;
+        }
+    }
+
+    throw std::runtime_error("failed to find supported format!");
+}
+
+void VkbeDevice::create_image(
+    const VkImageCreateInfo &imageInfo,
+    VkMemoryPropertyFlags properties,
+    VkImage &image,
+    VkDeviceMemory &imageMemory) const
+{
+    vkbe_check_vk_result_panic(
+        vkCreateImage(logical_device, &imageInfo, nullptr, &image),
+        "failed to create image!"
+    );
+
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(logical_device, image, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = find_memory_type(physical_device, memRequirements.memoryTypeBits, properties);
+
+    vkbe_check_vk_result_panic(
+        vkAllocateMemory(logical_device, &allocInfo, nullptr, &imageMemory),
+        "failed to allocate image memory!"
+    );
+
+    vkbe_check_vk_result_panic(
+            vkBindImageMemory(logical_device, image, imageMemory, 0),
+            "failed to bind image memory!"
+    );
 }
 
 }
