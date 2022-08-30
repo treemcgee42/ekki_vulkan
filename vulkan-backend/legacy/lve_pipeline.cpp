@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <fstream>
-#include <iostream>
 #include <stdexcept>
 
 #include "lve_model.hpp"

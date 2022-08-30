@@ -23,17 +23,16 @@ void vkbe_check_vk_result_panic(VkResult result, const char *msg);
 const std::vector<const char *> VKBE_CONFIG_VALIDATION_LAYERS = {"VK_LAYER_KHRONOS_validation"};
 // Window extensions, such as those from GLFW, are not included here.
 const std::vector<const char *> VKBE_CONFIG_INSTANCE_EXTENSIONS = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-        // TODO: maybe only necessary on macOS
-        "VK_KHR_portability_subset"
+        VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
+        VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
 };
 const std::vector<const char *> VKBE_CONFIG_DEVICE_EXTENSIONS = {
 #ifdef NDEBUG
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
         // TODO: maybe only necessary on macOS
-        VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
-        VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
+        "VK_KHR_portability_subset"
 };
 
 // Application info

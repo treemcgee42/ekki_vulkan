@@ -3,7 +3,6 @@
 //
 
 #include "animation.hpp"
-#include <iostream>
 
 namespace eklib {
 

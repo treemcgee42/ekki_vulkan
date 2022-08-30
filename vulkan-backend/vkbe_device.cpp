@@ -2,8 +2,8 @@
 // Created by Varun Malladi on 8/28/22.
 //
 
-#include "vkbe_device.hpp"
-#include "vkbe_swap_chain.hpp"
+#include "vulkan-backend/include/vkbe_device.hpp"
+#include "vulkan-backend/include/vkbe_swap_chain.hpp"
 #include <iostream>
 #include <set>
 
@@ -96,6 +96,14 @@ void VkbeDevice::setup_debug_messenger() {
         create_debug_utils_messenger_ext(instance, &createInfo, nullptr, &debug_messenger),
         "failed to set up debug messenger!"
     );
+}
+
+void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator) {
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance,  "vkDestroyDebugUtilsMessengerEXT");
+
+    if (func != nullptr) {
+        func(instance, debugMessenger, pAllocator);
+    }
 }
 
 // ------------------------------------------------------------------------
@@ -202,6 +210,10 @@ std::vector<const char*> VkbeDevice::get_required_instance_extensions() {
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
     std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+    if (VKBE_CONFIG_ENABLE_VALIDATION_LAYERS) {
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
 
     for (auto extension : VKBE_CONFIG_INSTANCE_EXTENSIONS) {
         extensions.push_back(extension);
@@ -344,10 +356,6 @@ void VkbeDevice::create_logical_device() {
         createInfo.enabledLayerCount = 0;
     }
 
-    if (vkCreateDevice(physical_device, &createInfo, nullptr, &logical_device) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create logical device!");
-    }
-
     vkbe_check_vk_result_panic(
         vkCreateDevice(physical_device, &createInfo, nullptr, &logical_device),
         "failed to create logical device!"
@@ -380,6 +388,18 @@ VkbeDevice::VkbeDevice(VkbeWindow& vkbe_window) {
     get_queues_from_logical_device();
     // TODO: should this be happening here?
     create_command_pool();
+}
+
+VkbeDevice::~VkbeDevice() {
+    vkDestroyCommandPool(logical_device, command_pool, nullptr);
+    vkDestroyDevice(logical_device, nullptr);
+
+    if (VKBE_CONFIG_ENABLE_VALIDATION_LAYERS) {
+        DestroyDebugUtilsMessengerEXT(instance, debug_messenger, nullptr);
+    }
+
+    vkDestroySurfaceKHR(instance, surface, nullptr);
+    vkDestroyInstance(instance, nullptr);
 }
 
 // --------------------------------------------------------------------------------
@@ -452,6 +472,34 @@ void VkbeDevice::create_image(
             vkBindImageMemory(logical_device, image, imageMemory, 0),
             "failed to bind image memory!"
     );
+}
+
+void VkbeDevice::create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory) {
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    vkbe_check_vk_result_panic(
+        vkCreateBuffer(logical_device, &bufferInfo, nullptr, &buffer),
+        "failed to create vertex buffer!"
+    );
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(logical_device, buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = find_memory_type(physical_device, memRequirements.memoryTypeBits, properties);
+
+    vkbe_check_vk_result_panic(
+        vkAllocateMemory(logical_device, &allocInfo, nullptr, &bufferMemory),
+        "failed to allocate vertex buffer memory!"
+    );
+
+    vkBindBufferMemory(logical_device, buffer, bufferMemory, 0);
 }
 
 }

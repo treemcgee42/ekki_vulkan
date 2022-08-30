@@ -2,7 +2,7 @@
 // Created by Varun Malladi on 8/29/22.
 //
 
-#include "vkbe_renderer.hpp"
+#include "vulkan-backend/include/vkbe_renderer.hpp"
 
 namespace vkbe {
 
@@ -154,6 +154,18 @@ VkbeRenderer::VkbeRenderer(VkbeWindow& window, VkbeDevice& device):
     vkbe_render_pass = std::make_unique<VkbeRenderPass>(vkbe_device, *vkbe_swap_chain);
     create_command_buffers();
     create_sync_objects();
+}
+
+VkbeRenderer::~VkbeRenderer() {
+    vkFreeCommandBuffers(vkbe_device.get_logical_device(), vkbe_device.get_command_pool(),static_cast<uint32_t>(command_buffers.size()), command_buffers.data());
+    command_buffers.clear();
+
+    // cleanup synchronization objects
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        vkDestroySemaphore(vkbe_device.get_logical_device(), render_finished_semaphores[i], nullptr);
+        vkDestroySemaphore(vkbe_device.get_logical_device(), image_available_semaphores[i], nullptr);
+        vkDestroyFence(vkbe_device.get_logical_device(), command_buffer_rendered_fences[i], nullptr);
+    }
 }
 
 // ----- Public functions ----------------------------------------------------

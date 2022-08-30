@@ -4,8 +4,6 @@
 
 #include "scene.hpp"
 #include "constants.hpp"
-#include <iostream>
-#include <glm/gtx/string_cast.hpp>
 
 namespace eklib {
 
@@ -23,7 +21,7 @@ void Scene::add_active_object(const std::shared_ptr<Triangle>& object) {
 }
 
 void Scene::draw(Engine& engine, VkCommandBuffer commandBuffer) {
-    engine.render_system.lvePipeline->bind(commandBuffer);
+    engine.vkbe_render_system.vkbe_pipeline->bind(commandBuffer);
 
     for (const auto& obj : active_objects) {
         SimplePushConstantData push{};
@@ -38,13 +36,13 @@ void Scene::draw(Engine& engine, VkCommandBuffer commandBuffer) {
         push.model_matrix = translation_matrix * scale_matrix;
         push.color = obj->get_color();
 
-        vkCmdPushConstants(commandBuffer, engine.render_system.pipelineLayout,
+        vkCmdPushConstants(commandBuffer, engine.vkbe_render_system.pipeline_layout,
                            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                            sizeof(SimplePushConstantData), &push);
 
-        auto model= engine.mesh_library.get_mesh("triangle");
-        model->bind(commandBuffer);
-        model->draw(commandBuffer);
+        auto model= engine.mesh_library.get_mesh(0);
+        model->bind_to_command_buffer(commandBuffer);
+        model->draw_to_command_buffer(commandBuffer);
     }
 }
 

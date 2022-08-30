@@ -4,11 +4,16 @@
 
 #pragma once
 
-#include "vulkan-backend/lve_window.hpp"
-#include "vulkan-backend/lve_device.hpp"
-#include "vulkan-backend/lve_renderer.hpp"
-#include "vulkan-backend/simple_render_system.hpp"
+#include "vulkan-backend/legacy/lve_window.hpp"
+#include "vulkan-backend/legacy/lve_device.hpp"
+#include "vulkan-backend/legacy/lve_renderer.hpp"
+#include "vulkan-backend/legacy/simple_render_system.hpp"
 #include "meshes.hpp"
+
+#include "vulkan-backend/include/vkbe_window.hpp"
+#include "vulkan-backend/include/vkbe_device.hpp"
+#include "vulkan-backend/include/vkbe_renderer.hpp"
+#include "vulkan-backend/include/vkbe_render_system.hpp"
 
 namespace eklib {
 
@@ -26,14 +31,11 @@ public:
     //Engine(Engine const&) = delete;
     //Engine& operator=(Engine const&) = delete;
 
-    void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function);
-
-    lve::LveWindow lveWindow{WIDTH, HEIGHT, "Hello Vulkan!"};
-    lve::LveDevice lveDevice{lveWindow};
-    lve::LveRenderer lveRenderer{lveWindow, lveDevice};
-    lve::SimpleRenderSystem render_system{lveDevice, lveRenderer.getSwapChainRenderPass()};
-    Meshes mesh_library{lveDevice};
-
+    vkbe::VkbeWindow vkbe_window{WIDTH, HEIGHT, "Hello Vulkan!"};
+    vkbe::VkbeDevice vkbe_device{vkbe_window};
+    vkbe::VkbeRenderer vkbe_renderer{vkbe_window, vkbe_device};
+    vkbe::VkbeRenderSystem vkbe_render_system{vkbe_device, vkbe_renderer.get_render_pass()};
+    Meshes mesh_library{vkbe_device};
 };
 
 }

@@ -11,45 +11,17 @@ SET(CMAKE_BUILD_WITH_INSTALL_RPATH true)
 
 include_directories(${VULKAN_SDK_PATH}/include /usr/local/include)
 include_directories(${CMAKE_SOURCE_DIR})
+include_directories(vulkan-backend/include)
 include_directories(libs/imgui/include)
 include_directories(libs/vma/include)
 
 file(GLOB SOURCES
     main.cpp
-        libs/imgui/include/imconfig.h
-        libs/imgui/include/imgui.h
-        libs/imgui/include/imgui_impl_glfw.h
-        libs/imgui/include/imgui_impl_vulkan.h
-        libs/imgui/include/imgui_internal.h
-        libs/imgui/include/imstb_rectpack.h
-        libs/imgui/include/imstb_textedit.h
-        libs/imgui/include/imstb_truetype.h
-        libs/imgui/imgui.cpp
-        libs/imgui/imgui_demo.cpp
-        libs/imgui/imgui_draw.cpp
-        libs/imgui/imgui_impl_glfw.cpp
-        libs/imgui/imgui_impl_vulkan.cpp
-        libs/imgui/imgui_tables.cpp
-        libs/imgui/imgui_widgets.cpp
+        libs/imgui/include/*.h
+        libs/imgui/*.cpp
         libs/vma/vma_implementation.cpp
-        vulkan-backend/first_app.hpp
-        vulkan-backend/first_app.cpp
-        vulkan-backend/lve_device.hpp
-        vulkan-backend/lve_device.cpp
-        vulkan-backend/lve_game_object.hpp
-        vulkan-backend/lve_model.hpp
-        vulkan-backend/lve_model.cpp
-        vulkan-backend/lve_pipeline.hpp
-        vulkan-backend/lve_pipeline.cpp
-        vulkan-backend/lve_renderer.hpp
-        vulkan-backend/lve_renderer.cpp
-        vulkan-backend/lve_swap_chain.hpp
-        vulkan-backend/lve_swap_chain.cpp
-        vulkan-backend/lve_window.hpp
-        vulkan-backend/lve_window.cpp
-        vulkan-backend/simple_render_system.hpp
-        vulkan-backend/simple_render_system.cpp
-        vulkan-backend/custom/*
+        vulkan-backend/include/*.hpp
+        vulkan-backend/*.cpp
         animation.hpp
         animation.cpp
         constants.hpp
@@ -59,6 +31,8 @@ file(GLOB SOURCES
         scene.cpp
         engine.cpp
         engine.hpp
+        types.hpp
+        types.cpp
         meshes.cpp
         meshes.hpp
         gui.hpp

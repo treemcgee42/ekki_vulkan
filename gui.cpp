@@ -10,6 +10,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
+#include <iostream>
 
 void Gui::init_imgui(eklib::Engine& engine) {
     //1: create descriptor pool for IMGUI
@@ -37,7 +38,7 @@ void Gui::init_imgui(eklib::Engine& engine) {
     pool_info.pPoolSizes = pool_sizes;
 
     VkDescriptorPool imguiPool;
-    if (vkCreateDescriptorPool(engine.lveDevice.device(), &pool_info, nullptr, &imguiPool) != VK_SUCCESS) {
+    if (vkCreateDescriptorPool(engine.vkbe_device.get_logical_device(), &pool_info, nullptr, &imguiPool) != VK_SUCCESS) {
         throw std::runtime_error("couldn't create imgui descriptor pool");
     }
 
@@ -55,25 +56,29 @@ void Gui::init_imgui(eklib::Engine& engine) {
 
     //this initializes imgui for SDL
     //ImGui_ImplSDL2_InitForVulkan(_window);
-    ImGui_ImplGlfw_InitForVulkan(engine.lveWindow.get_glfw_window(), true);
+    ImGui_ImplGlfw_InitForVulkan(engine.vkbe_window.window, true);
 
     //this initializes imgui for Vulkan
     ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance = engine.lveDevice.get_VkInstance();
-    init_info.PhysicalDevice = engine.lveDevice.get_VkPhysicalDevice();
-    init_info.Device = engine.lveDevice.device();
-    init_info.Queue = engine.lveDevice.get_graphics_queue();
+    init_info.Instance = engine.vkbe_device.get_instance();
+    init_info.PhysicalDevice = engine.vkbe_device.get_physical_device();
+    init_info.Device = engine.vkbe_device.get_logical_device();
+    init_info.Queue = engine.vkbe_device.get_graphics_queue();
     init_info.DescriptorPool = imguiPool;
     init_info.MinImageCount = 3;
     init_info.ImageCount = 3;
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
-    ImGui_ImplVulkan_Init(&init_info, engine.lveRenderer.getSwapChainRenderPass());
+    ImGui_ImplVulkan_Init(&init_info, engine.vkbe_renderer.get_render_pass());
+
+    std::cout << "before immediate submit\n";
 
     //execute a gpu command to upload imgui font textures
-    engine.immediate_submit([&](VkCommandBuffer cmd) {
-        ImGui_ImplVulkan_CreateFontsTexture(cmd);
-    });
+//    engine.immediate_submit([&](VkCommandBuffer cmd) {
+//        ImGui_ImplVulkan_CreateFontsTexture(cmd);
+//    });
+
+    std::cout << "after immediate submit\n";
 
     //clear font textures from cpu data
     ImGui_ImplVulkan_DestroyFontUploadObjects();

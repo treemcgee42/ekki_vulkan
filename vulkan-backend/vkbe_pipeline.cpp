@@ -4,9 +4,9 @@
 
 #include <fstream>
 
-#include "vkbe_pipeline.hpp"
-#include "vulkan-backend/lve_model.hpp"
+#include "vulkan-backend/include/vkbe_pipeline.hpp"
 #include <glm/glm.hpp>
+#include "types.hpp"
 
 namespace vkbe {
 
@@ -60,8 +60,8 @@ void VkbePipeline::create_graphics_pipeline(const std::string& vertFilepath, con
     shaderStages[1].pSpecializationInfo = nullptr;
 
     // todo: own vertex
-    auto bindingDescriptions = lve::LveModel::Vertex::getBindingDescriptions();
-    auto attributeDescriptions = lve::LveModel::Vertex::getAttributeDescriptions();
+    auto bindingDescriptions = eklib::Vertex::get_vulkan_binding_descriptions();
+    auto attributeDescriptions = eklib::Vertex::get_vulkan_attribute_descriptions();
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());

@@ -27,6 +27,7 @@ public:
     VkExtent2D get_extent() const { return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)}; }
     bool was_resized() { return resized; }
     void reset_resized_flag() { resized = false; }
+    bool should_close() { return glfwWindowShouldClose(window); }
 private:
     int height;
     int width;

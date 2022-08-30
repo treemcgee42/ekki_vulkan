@@ -2,7 +2,7 @@
 // Created by Varun Malladi on 8/29/22.
 //
 
-#include "vkbe_render_system.hpp"
+#include "vulkan-backend/include/vkbe_render_system.hpp"
 #include <glm/glm.hpp>
 
 namespace vkbe {

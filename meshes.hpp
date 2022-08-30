@@ -6,22 +6,25 @@
 
 #include <map>
 #include <vector>
-#include "vulkan-backend/lve_model.hpp"
-#include "vulkan-backend/lve_device.hpp"
+#include "vulkan-backend/include/vkbe_device.hpp"
+#include "vulkan-backend/include/vkbe_model.hpp"
+
+#include "vulkan-backend/legacy/lve_model.hpp"
 
 
 namespace eklib {
 
 class Meshes {
 public:
-    Meshes(lve::LveDevice& device);
+    //Meshes() = default;
+    explicit Meshes(vkbe::VkbeDevice& vkbe_device_);
     ~Meshes() = default;
 
-    std::shared_ptr<lve::LveModel> get_mesh(const char* mesh_kind);
+    std::shared_ptr<vkbe::VkbeModel> get_mesh(int mesh_kind);
 
 private:
-    lve::LveDevice& device;
-    std::map<std::string, std::shared_ptr<lve::LveModel>> library;
+    vkbe::VkbeDevice& vkbe_device;
+    std::unique_ptr<std::map<int, std::shared_ptr<vkbe::VkbeModel>>> library;
 
     void init_triangle_mesh();
 };

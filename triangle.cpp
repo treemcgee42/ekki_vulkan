@@ -3,7 +3,6 @@
 //
 
 #include "triangle.hpp"
-#include "meshes.hpp"
 
 namespace eklib {
 

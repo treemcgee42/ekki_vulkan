@@ -16,10 +16,11 @@ public:
 
     VkbeRenderSystem(const VkbeRenderSystem &) = delete;
     VkbeRenderSystem &operator=(const VkbeRenderSystem &) = delete;
+
+    std::unique_ptr<VkbePipeline> vkbe_pipeline;
+    VkPipelineLayout pipeline_layout;
 private:
     VkbeDevice& vkbe_device;
-    VkPipelineLayout pipeline_layout;
-    std::unique_ptr<VkbePipeline> vkbe_pipeline;
 
     void createPipelineLayout();
     void create_pipeline(VkRenderPass renderPass);

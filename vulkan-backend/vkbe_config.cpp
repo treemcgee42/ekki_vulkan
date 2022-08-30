@@ -2,7 +2,7 @@
 // Created by Varun Malladi on 8/29/22.
 //
 
-#include "vkbe_config.hpp"
+#include "vulkan-backend/include/vkbe_config.hpp"
 
 namespace vkbe {
 

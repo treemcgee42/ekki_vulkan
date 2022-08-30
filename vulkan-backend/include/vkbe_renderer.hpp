@@ -23,6 +23,10 @@ public:
     void begin_swap_chain_render_pass(VkCommandBuffer commandBuffer);
     void end_swap_chain_render_pass(VkCommandBuffer commandBuffer);
     void end_frame();
+
+    VkCommandBuffer get_current_command_buffer();
+
+    [[nodiscard]] VkRenderPass get_render_pass() const { return vkbe_render_pass->get_render_pass(); }
 private:
     VkbeWindow& vkbe_window;
     VkbeDevice& vkbe_device;
@@ -44,7 +48,6 @@ private:
     void create_command_buffers();
     void create_sync_objects();
     VkResult acquire_next_image_from_swap_chain(uint32_t *imageIndex);
-    VkCommandBuffer get_current_command_buffer();
     VkResult submit_command_buffers(const VkCommandBuffer *buffers, const uint32_t *imageIndex);
     void recreate_swap_chain_and_dependencies();
 

@@ -2,7 +2,7 @@
 // Created by Varun Malladi on 8/28/22.
 //
 
-#include "vkbe_swap_chain.hpp"
+#include "vulkan-backend/include/vkbe_swap_chain.hpp"
 
 #include <utility>
 

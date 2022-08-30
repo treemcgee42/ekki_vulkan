@@ -6,22 +6,25 @@
 
 namespace eklib {
 
-Meshes::Meshes(lve::LveDevice& device): device{device} {
+Meshes::Meshes(vkbe::VkbeDevice& vkbe_device_): vkbe_device{vkbe_device_}
+{
+    library = std::make_unique<std::map<int, std::shared_ptr<vkbe::VkbeModel>>>();
+
     init_triangle_mesh();
 }
 
-std::shared_ptr<lve::LveModel> Meshes::get_mesh(const char* mesh_kind) {
-    return library[mesh_kind];
+std::shared_ptr<vkbe::VkbeModel> Meshes::get_mesh(int mesh_kind) {
+    return (*library)[mesh_kind];
 }
 
 void Meshes::init_triangle_mesh() {
-    std::vector<lve::LveModel::Vertex> vertices{{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    std::vector<eklib::Vertex> vertices{{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
                                            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
                                            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 
-    auto lveModel = std::make_shared<lve::LveModel>(device, vertices);
+    auto lveModel = std::make_shared<vkbe::VkbeModel>(vkbe_device, vertices);
 
-    library.insert({"triangle", lveModel});
+    library->insert({0, lveModel});
 }
 
 }

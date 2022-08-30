@@ -44,6 +44,7 @@ public:
 
     void create_image(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory) const;
     [[nodiscard]] VkFormat find_supported_format(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+    void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
 
     [[nodiscard]] VkPhysicalDevice get_physical_device() const { return physical_device; }
     [[nodiscard]] VkSurfaceKHR get_vulkan_surface() const { return surface; }
@@ -51,6 +52,7 @@ public:
     [[nodiscard]] VkCommandPool get_command_pool() const { return command_pool; }
     [[nodiscard]] VkQueue get_graphics_queue() const { return graphics_queue; }
     [[nodiscard]] VkQueue get_present_queue() const { return present_queue; }
+    [[nodiscard]] VkInstance get_instance() const { return instance; }
 private:
     VkInstance instance;
     VkDebugUtilsMessengerEXT debug_messenger;
