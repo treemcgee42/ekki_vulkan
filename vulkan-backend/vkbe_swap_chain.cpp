@@ -3,6 +3,7 @@
 //
 
 #include "vulkan-backend/include/vkbe_swap_chain.hpp"
+#include "imgui_impl_vulkan.h"
 
 #include <utility>
 
@@ -131,6 +132,7 @@ void VkbeSwapChain::create_swap_chain() {
 
     // It is recommended to request at least one more image than the minimum
     uint32_t image_count = swap_chain_support.capabilities.minImageCount + 1;
+    min_image_count = image_count;
     if (swap_chain_support.capabilities.maxImageCount > 0 &&
         image_count > swap_chain_support.capabilities.maxImageCount) {
         image_count = swap_chain_support.capabilities.maxImageCount;
@@ -254,6 +256,8 @@ std::unique_ptr<VkbeSwapChain> VkbeSwapChain::recreate_swap_chain(VkbeWindow& vk
 
     std::shared_ptr<VkbeSwapChain> oldSwapChain = std::move(vkbe_swap_chain);
     auto new_vkbe_swap_chain = std::make_unique<VkbeSwapChain>(vkbe_device, extent, oldSwapChain);
+
+    ImGui_ImplVulkan_SetMinImageCount(new_vkbe_swap_chain->get_min_image_count());
 
     // TODO: handle changed formats
 //    if (!oldSwapChain->compareSwapFormats(*lveSwapChain.get())) {

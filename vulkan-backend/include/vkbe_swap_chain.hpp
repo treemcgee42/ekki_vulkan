@@ -42,6 +42,8 @@ public:
     [[nodiscard]] uint32_t get_swap_chain_image_count() const { return swap_chain_images.size(); }
     [[nodiscard]] VkImageView get_swap_chain_image_view(uint32_t i) const { return swap_chain_image_views[i]; }
     [[nodiscard]] VkSwapchainKHR get_swap_chain() const { return swap_chain; }
+    [[nodiscard]] uint32_t get_min_image_count() const { return min_image_count; }
+    [[nodiscard]] uint32_t get_image_count() const { return swap_chain_images.size(); }
 private:
     VkExtent2D window_extent;
     const VkbeDevice& vkbe_device;
@@ -50,6 +52,7 @@ private:
     // Shared so that it's dropped when it's no longer in use
     std::shared_ptr<VkbeSwapChain> old_swap_chain;
 
+    uint32_t min_image_count;
     VkExtent2D swap_chain_extent;
     VkFormat swap_chain_image_format;
     std::vector<VkImage> swap_chain_images;

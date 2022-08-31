@@ -21,7 +21,7 @@ void Scene::add_active_object(const std::shared_ptr<Triangle>& object) {
 }
 
 void Scene::draw(Engine& engine, VkCommandBuffer commandBuffer) {
-    engine.vkbe_render_system.vkbe_pipeline->bind(commandBuffer);
+    //engine.vkbe_render_system.vkbe_pipeline->bind(commandBuffer);
 
     for (const auto& obj : active_objects) {
         SimplePushConstantData push{};

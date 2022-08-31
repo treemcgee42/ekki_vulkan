@@ -7,6 +7,8 @@
 #include "vulkan-backend/include/vkbe_pipeline.hpp"
 #include <glm/glm.hpp>
 #include "types.hpp"
+#include "imgui.h"
+
 
 namespace vkbe {
 

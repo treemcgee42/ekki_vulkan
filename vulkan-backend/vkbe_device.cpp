@@ -6,6 +6,7 @@
 #include "vulkan-backend/include/vkbe_swap_chain.hpp"
 #include <iostream>
 #include <set>
+#include "imgui.h"
 
 namespace vkbe {
 
@@ -379,6 +380,47 @@ void VkbeDevice::create_command_pool() {
     );
 }
 
+void VkbeDevice::create_imgui_command_pool() {
+    VkCommandPoolCreateInfo poolInfo = {};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.queueFamilyIndex = queue_family_info.graphics_queue_family_index;
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+    vkbe_check_vk_result_panic(
+            vkCreateCommandPool(logical_device, &poolInfo, nullptr, &imgui_command_pool),
+            "failed to create imgui command pool!"
+    );
+}
+
+// TODO: better understand and customize
+void VkbeDevice::create_descriptor_pool() {
+    VkDescriptorPoolSize pool_sizes[] = {
+            { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+            { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+            { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+    };
+
+    VkDescriptorPoolCreateInfo pool_info = {};
+    pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
+    pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
+    pool_info.pPoolSizes = pool_sizes;
+
+    vkbe_check_vk_result_panic(
+        vkCreateDescriptorPool(logical_device, &pool_info, nullptr, &descriptor_pool),
+        "failed to create descriptor pool!"
+    );
+}
+
 VkbeDevice::VkbeDevice(VkbeWindow& vkbe_window) {
     create_vulkan_instance();
     setup_debug_messenger();
@@ -388,10 +430,14 @@ VkbeDevice::VkbeDevice(VkbeWindow& vkbe_window) {
     get_queues_from_logical_device();
     // TODO: should this be happening here?
     create_command_pool();
+    create_imgui_command_pool();
+    create_descriptor_pool();
 }
 
 VkbeDevice::~VkbeDevice() {
     vkDestroyCommandPool(logical_device, command_pool, nullptr);
+    vkDestroyCommandPool(logical_device, imgui_command_pool, nullptr);
+    vkDestroyDescriptorPool(logical_device, descriptor_pool, nullptr);
     vkDestroyDevice(logical_device, nullptr);
 
     if (VKBE_CONFIG_ENABLE_VALIDATION_LAYERS) {

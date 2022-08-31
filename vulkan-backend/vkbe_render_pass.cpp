@@ -83,6 +83,33 @@ VulkanAttachment VkbeRenderPass::create_color_attachment() {
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    // To be picked up by imgui render pass
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference colorAttachmentRef = {};
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    attachment.description = colorAttachment;
+    attachment.reference = colorAttachmentRef;
+
+    return attachment;
+}
+
+VulkanAttachment VkbeRenderPass::create_imgui_color_attachment() {
+    VulkanAttachment attachment{};
+
+    VkAttachmentDescription colorAttachment = {};
+    //colorAttachment.format = vkbe_swap_chain.get_swap_chain_image_format();
+    colorAttachment.format = vkbe_swap_chain.get_swap_chain_image_format();
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    // Don't clear framebuffer-- draw ui over whatever is drawn
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    // Comes from the main drawing pass
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
     VkAttachmentReference colorAttachmentRef = {};
@@ -164,6 +191,40 @@ void VkbeRenderPass::create_render_pass() {
     );
 }
 
+void VkbeRenderPass::create_imgui_render_pass() {
+    auto color_attachment = create_imgui_color_attachment();
+
+    VkSubpassDescription subpass = {};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &color_attachment.reference;
+
+    VkSubpassDependency dependency = {};
+    // Dependency outside render pass, since we want to synchronize with main pass
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    // Wait for previous pixels to be drawn
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    // Tell whoever is listening that we are done drawing pixels
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcAccessMask = 0;  // TODO: or VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+    VkRenderPassCreateInfo info = {};
+    info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    info.attachmentCount = 1;
+    info.pAttachments = &color_attachment.description;
+    info.subpassCount = 1;
+    info.pSubpasses = &subpass;
+    info.dependencyCount = 1;
+    info.pDependencies = &dependency;
+
+    vkbe_check_vk_result_panic(
+        vkCreateRenderPass(vkbe_device.get_logical_device(), &info, nullptr, &imgui_render_pass),
+        "failed to create imgui render pass!"
+    );
+}
+
 void VkbeRenderPass::create_frame_buffers() {
     auto image_count = vkbe_swap_chain.get_swap_chain_image_count();
     frame_buffers.resize(image_count);
@@ -187,13 +248,40 @@ void VkbeRenderPass::create_frame_buffers() {
     }
 }
 
+void VkbeRenderPass::create_imgui_frame_buffers() {
+    auto image_count = vkbe_swap_chain.get_swap_chain_image_count();
+    imgui_frame_buffers.resize(image_count);
+    VkExtent2D swapChainExtent = vkbe_swap_chain.get_swap_chain_extent();
+
+    VkImageView attachment[1];
+    VkFramebufferCreateInfo info = {};
+    info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    info.renderPass = imgui_render_pass;
+    info.attachmentCount = 1;
+    info.pAttachments = attachment;
+    info.width = swapChainExtent.width;
+    info.height = swapChainExtent.height;
+    info.layers = 1;
+
+    for (uint32_t i = 0; i < image_count; i++) {
+        attachment[0] = vkbe_swap_chain.get_swap_chain_image_view(i);
+
+        vkbe_check_vk_result_panic(
+            vkCreateFramebuffer(vkbe_device.get_logical_device(), &info, VK_NULL_HANDLE, &imgui_frame_buffers[i]),
+            "failed to create imgui framebuffer!"
+        );
+    }
+}
+
 VkbeRenderPass::VkbeRenderPass(VkbeDevice& vkbe_device_, VkbeSwapChain& vkbe_swap_chain_):
     vkbe_device{vkbe_device_},
     vkbe_swap_chain{vkbe_swap_chain_}
 {
     allocate_remaining_render_pass_resources();
     create_render_pass();
+    create_imgui_render_pass();
     create_frame_buffers();
+    create_imgui_frame_buffers();
 }
 
 VkbeRenderPass::~VkbeRenderPass() {
@@ -207,7 +295,12 @@ VkbeRenderPass::~VkbeRenderPass() {
         vkDestroyFramebuffer(vkbe_device.get_logical_device(), framebuffer, nullptr);
     }
 
+    for (auto framebuffer : imgui_frame_buffers) {
+        vkDestroyFramebuffer(vkbe_device.get_logical_device(), framebuffer, nullptr);
+    }
+
     vkDestroyRenderPass(vkbe_device.get_logical_device(), render_pass, nullptr);
+    vkDestroyRenderPass(vkbe_device.get_logical_device(), imgui_render_pass, nullptr);
 }
 
 }

@@ -50,6 +50,8 @@ public:
     [[nodiscard]] VkSurfaceKHR get_vulkan_surface() const { return surface; }
     [[nodiscard]] VkDevice get_logical_device() const { return logical_device; }
     [[nodiscard]] VkCommandPool get_command_pool() const { return command_pool; }
+    [[nodiscard]] VkCommandPool get_imgui_command_pool() const { return imgui_command_pool; }
+    [[nodiscard]] VkDescriptorPool get_descriptor_pool() const { return descriptor_pool; }
     [[nodiscard]] VkQueue get_graphics_queue() const { return graphics_queue; }
     [[nodiscard]] VkQueue get_present_queue() const { return present_queue; }
     [[nodiscard]] VkInstance get_instance() const { return instance; }
@@ -63,6 +65,8 @@ private:
     VkQueue graphics_queue;
     VkQueue present_queue;
     VkCommandPool command_pool;
+    VkCommandPool imgui_command_pool;
+    VkDescriptorPool descriptor_pool;
 
     void create_vulkan_instance();
     void setup_debug_messenger();
@@ -71,6 +75,8 @@ private:
     void create_logical_device();
     void get_queues_from_logical_device();
     void create_command_pool();
+    void create_imgui_command_pool();
+    void create_descriptor_pool();
 
     bool is_device_suitable(VkPhysicalDevice device);
     std::vector<const char*> get_required_instance_extensions();

@@ -30,7 +30,9 @@ public:
     VkbeRenderPass& operator =(const VkbeRenderPass &) = delete;
 
     [[nodiscard]] VkRenderPass get_render_pass() const { return render_pass; }
+    [[nodiscard]] VkRenderPass get_imgui_render_pass() const { return imgui_render_pass; }
     [[nodiscard]] VkFramebuffer get_frame_buffer(uint32_t i) { return frame_buffers[i]; }
+    [[nodiscard]] VkFramebuffer get_imgui_frame_buffer(uint32_t i) { return imgui_frame_buffers[i]; }
 private:
     const VkbeDevice& vkbe_device;
     const VkbeSwapChain& vkbe_swap_chain;
@@ -39,15 +41,24 @@ private:
     std::vector<VkDeviceMemory> depth_image_memories;
     std::vector<VkImageView> depth_image_views;
     VkRenderPass render_pass;
+    VkRenderPass imgui_render_pass;
     std::vector<VkFramebuffer> frame_buffers;
+    std::vector<VkFramebuffer> imgui_frame_buffers;
+
+
+
+
 
     void allocate_remaining_render_pass_resources();
     void create_render_pass();
+    void create_imgui_render_pass();
     void create_frame_buffers();
+    void create_imgui_frame_buffers();
 
     void create_depth_resources();
     VulkanAttachment create_depth_attachment();
     VulkanAttachment create_color_attachment();
+    VulkanAttachment create_imgui_color_attachment();
 };
 
 }
