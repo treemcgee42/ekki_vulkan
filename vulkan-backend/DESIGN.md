@@ -9,6 +9,8 @@ In this situation, the swap chain images are the ones we want to render to and d
 
 ## Render pass design
 
+There are currently two render passes— one for the actual scene graphics, and one for the GUI.
+
 ### Attachments
 
 Besides drawing an image to the screen, we want to have order-independent display of objects on the screen with regards to which is on top. Therefore, we need

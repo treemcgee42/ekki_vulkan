@@ -9,11 +9,20 @@
 #include "imgui_impl_vulkan.h"
 #include "engine.hpp"
 
-class Gui {
+class EkGui {
 public:
-    void init_imgui(eklib::Engine& engine);
+    EkGui(eklib::Engine& engine);
+    ~EkGui();
 
-    VkDescriptorPool imgui_descriptor_pool;
+    ImDrawData* get_imgui_draw_data(bool *show_demo_window, bool *show_another_window, ImVec4 *clear_color);
+private:
+    ImGuiIO *io;
+    eklib::Engine& engine;
+
+    void setup_imgui_context();
+    void setup_imgui_style();
+    void setup_imgui_backend();
+    void load_imgui_fonts();
 };
 
 
