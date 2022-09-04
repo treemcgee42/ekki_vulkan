@@ -17,7 +17,15 @@ void Scene::add_animation(std::unique_ptr<Animation> animation) {
 }
 
 void Scene::add_active_object(const std::shared_ptr<Triangle>& object) {
-    active_objects.push_front(object);
+    active_objects.push_back(object);
+    num_active_objects++;
+}
+
+const std::string& Scene::get_active_object_name_by_index(uint32_t i) const {
+    auto obj = active_objects[i];
+    // TODO: handle out of bounds
+
+    return obj->get_name();
 }
 
 void Scene::draw(Engine& engine, VkCommandBuffer commandBuffer) {

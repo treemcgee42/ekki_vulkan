@@ -1,4 +1,5 @@
 #include "gui.hpp"
+#include <iostream>
 
 static void check_vk_result(VkResult err) {
     if (err == 0)
@@ -7,6 +8,10 @@ static void check_vk_result(VkResult err) {
     if (err < 0)
         abort();
 }
+
+// -------------------------------------------------------------------------------------------
+// ----- Initialization helpers --------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
 
 void EkGui::setup_imgui_context() {
     IMGUI_CHECKVERSION();
@@ -78,6 +83,94 @@ void EkGui::load_imgui_fonts() {
     ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
+// -------------------------------------------------------------------------------------------
+// ----- Window creations --------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
+
+void EkGui::create_object_list_window(eklib::Scene& scene) {
+    ImGui::Begin("objects");
+
+    static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+
+    ImGui::CheckboxFlags("ImGuiTableFlags_ScrollY", &flags, ImGuiTableFlags_ScrollY);
+
+//    static int selected = -1;
+//    for (int n = 0; n < 5; n++)
+//    {
+//        char buf[32];
+//        sprintf(buf, "Object %d", n);
+//        if (ImGui::Selectable(buf, selected == n))
+//            selected = n;
+//    }
+
+
+    // When using ScrollX or ScrollY we need to specify a size for our table container!
+    // Otherwise by default the table will fit all available space, like a BeginChild() call.
+    ImVec2 outer_size = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 8);
+    if (ImGui::BeginTable("table_scrolly", 1, flags, outer_size))
+    {
+
+
+        // Demonstrate using clipper for large vertical lists
+        ImGuiListClipper clipper;
+        clipper.Begin(scene.get_num_active_objects());
+        while (clipper.Step()) {
+            for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
+                auto active_object_id = row;
+                const bool item_is_selected = (active_object_id == selected_object_index_in_active_objects);
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+
+                auto label = scene.get_active_object_name_by_index(static_cast<uint32_t>(row)).c_str();
+                if (ImGui::Selectable(label, item_is_selected)) {
+                    std::cout << "object " << active_object_id << " is selected\n";
+                    selected_object_index_in_active_objects = active_object_id;
+                }
+
+            }
+        }
+        ImGui::EndTable();
+    }
+
+    ImGui::End();
+}
+
+void EkGui::create_object_editor_window(eklib::Scene& scene) {
+    ImGui::Begin("object editor");
+
+    if (selected_object_index_in_active_objects < 0) {
+        ImGui::Text("no selected object");
+    } else {
+        auto active_object = scene.get_active_object_by_index(selected_object_index_in_active_objects);
+
+        obj_editor_scale = active_object->getScale();
+        auto active_object_position = active_object->getTranslation();
+        obj_editor_position2[0] = active_object_position[0];
+        obj_editor_position2[1] = active_object_position[1];
+        auto active_object_color = active_object->get_color();
+        obj_editor_color4[0] = active_object_color[0];
+        obj_editor_color4[1] = active_object_color[1];
+        obj_editor_color4[2] = active_object_color[2];
+        obj_editor_color4[3] = active_object_color[3];
+
+        ImGui::Text("name: %s", scene.get_active_object_name_by_index(selected_object_index_in_active_objects).c_str());
+        ImGui::InputFloat("scale", &obj_editor_scale, 0.1f);
+        ImGui::InputFloat2("position", obj_editor_position2);
+        ImGui::ColorEdit4("color", obj_editor_color4);
+
+        active_object->scale_absolute(obj_editor_scale);
+        active_object->translate_absolute(obj_editor_position2[0], obj_editor_position2[1]);
+        active_object->set_color(obj_editor_color4[0], obj_editor_color4[1], obj_editor_color4[2], obj_editor_color4[3]);
+    }
+
+    ImGui::End();
+}
+
+// -------------------------------------------------------------------------------------------
+// ----- Public functions --------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
+
 EkGui::EkGui(eklib::Engine& engine_): engine{engine_} {
     setup_imgui_context();
     setup_imgui_style();
@@ -91,7 +184,7 @@ EkGui::~EkGui() {
     ImGui::DestroyContext();
 }
 
-ImDrawData* EkGui::get_imgui_draw_data(bool *show_demo_window, bool *show_another_window, ImVec4 *clear_color) {
+ImDrawData* EkGui::get_imgui_draw_data(bool *show_demo_window, bool *show_another_window, ImVec4 *clear_color, eklib::Scene& scene) {
     // Start the Dear ImGui frame
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -133,6 +226,9 @@ ImDrawData* EkGui::get_imgui_draw_data(bool *show_demo_window, bool *show_anothe
             *show_another_window = false;
         ImGui::End();
     }
+
+    create_object_list_window(scene);
+    create_object_editor_window(scene);
 
     ImGui::Render();
     return ImGui::GetDrawData();

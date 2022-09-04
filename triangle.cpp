@@ -6,6 +6,8 @@
 
 namespace eklib {
 
+uint32_t Triangle::object_count = 0;
+
 float Triangle::getScale() { return scale; }
 glm::vec2 Triangle::getTranslation() { return translation; }
 float Triangle::getTranslationComponent(int i) { return translation[i]; }

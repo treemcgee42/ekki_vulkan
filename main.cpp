@@ -37,7 +37,7 @@ void do_scene(eklib::Engine& engine, EkGui& ekgui, eklib::Scene& scene) {
         }
 
         // GUI
-        auto main_draw_data = ekgui.get_imgui_draw_data(&show_demo_window, &show_another_window, &clear_color);
+        auto main_draw_data = ekgui.get_imgui_draw_data(&show_demo_window, &show_another_window, &clear_color, scene);
 
         // RENDER
         if (auto commandBuffer = engine.vkbe_renderer.begin_frame()) {
@@ -60,14 +60,17 @@ int main() {
     eklib::Scene scene1{};
 
     auto t1 = eklib::Triangle::create();
+    t1->set_name("triangle 1");
     t1->scale_absolute(0.25);
     t1->translate_absolute(-0.5, 0.5);
 
     auto t2 = eklib::Triangle::create();
+    t2->set_name("triangle 2");
     t2->scale_absolute(0.5);
     t2->translate_absolute(0.5, -0.5);
 
     auto t3 = eklib::Triangle::create();
+    t3->set_name("triangle 3");
     t3->scale_absolute(0.25);
     t3->set_color(0.0, 1.0, 0.0, 0.1);
 
