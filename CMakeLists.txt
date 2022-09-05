@@ -11,32 +11,32 @@ SET(CMAKE_BUILD_WITH_INSTALL_RPATH true)
 
 include_directories(${VULKAN_SDK_PATH}/include /usr/local/include)
 include_directories(${CMAKE_SOURCE_DIR})
-include_directories(vulkan-backend/include)
+include_directories(src/vulkan-backend/include)
 include_directories(libs/imgui/include)
 include_directories(libs/vma/include)
 
 file(GLOB SOURCES
-    main.cpp
+        src/main.cpp
         libs/imgui/include/*.h
         libs/imgui/*.cpp
         libs/vma/vma_implementation.cpp
-        vulkan-backend/include/*.hpp
-        vulkan-backend/*.cpp
-        animation.hpp
-        animation.cpp
-        constants.hpp
-        triangle.hpp
-        triangle.cpp
-        scene.hpp
-        scene.cpp
-        engine.cpp
-        engine.hpp
-        types.hpp
-        types.cpp
-        meshes.cpp
-        meshes.hpp
-        gui.hpp
-        gui.cpp
+        src/vulkan-backend/include/*.hpp
+        src/vulkan-backend/*.cpp
+        src/include/animation.hpp
+        src/animation.cpp
+        src/include/constants.hpp
+        src/include/triangle.hpp
+        src/triangle.cpp
+        src/include/scene.hpp
+        src/scene.cpp
+        src/engine.cpp
+        src/include/engine.hpp
+        src/include/types.hpp
+        src/types.cpp
+        src/meshes.cpp
+        src/include/meshes.hpp
+        src/include/gui.hpp
+        src/gui.cpp
 )
 add_executable(ekki ${SOURCES})
 set_target_properties(

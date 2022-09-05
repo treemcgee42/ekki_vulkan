@@ -2,8 +2,8 @@
 // Created by Varun Malladi on 8/23/22.
 //
 
-#include "scene.hpp"
-#include "constants.hpp"
+#include "src/include/scene.hpp"
+#include "src/include/constants.hpp"
 
 namespace eklib {
 

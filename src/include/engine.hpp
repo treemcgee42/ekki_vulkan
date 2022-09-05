@@ -4,16 +4,12 @@
 
 #pragma once
 
-#include "vulkan-backend/legacy/lve_window.hpp"
-#include "vulkan-backend/legacy/lve_device.hpp"
-#include "vulkan-backend/legacy/lve_renderer.hpp"
-#include "vulkan-backend/legacy/simple_render_system.hpp"
 #include "meshes.hpp"
 
-#include "vulkan-backend/include/vkbe_window.hpp"
-#include "vulkan-backend/include/vkbe_device.hpp"
-#include "vulkan-backend/include/vkbe_renderer.hpp"
-#include "vulkan-backend/include/vkbe_render_system.hpp"
+#include "vkbe_window.hpp"
+#include "vkbe_device.hpp"
+#include "vkbe_renderer.hpp"
+#include "vkbe_render_system.hpp"
 
 namespace eklib {
 

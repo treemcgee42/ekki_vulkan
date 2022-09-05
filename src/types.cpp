@@ -2,7 +2,7 @@
 // Created by Varun Malladi on 8/29/22.
 //
 
-#include "types.hpp"
+#include "src/include/types.hpp"
 
 namespace eklib {
 

@@ -2,7 +2,7 @@
 // Created by Varun Malladi on 8/22/22.
 //
 
-#include "triangle.hpp"
+#include "src/include/triangle.hpp"
 
 namespace eklib {
 

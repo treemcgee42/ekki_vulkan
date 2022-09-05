@@ -2,7 +2,7 @@
 // Created by Varun Malladi on 8/23/22.
 //
 
-#include "meshes.hpp"
+#include "src/include/meshes.hpp"
 
 namespace eklib {
 

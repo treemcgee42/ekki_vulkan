@@ -6,11 +6,8 @@
 
 #include <map>
 #include <vector>
-#include "vulkan-backend/include/vkbe_device.hpp"
-#include "vulkan-backend/include/vkbe_model.hpp"
-
-#include "vulkan-backend/legacy/lve_model.hpp"
-
+#include "vkbe_device.hpp"
+#include "vkbe_model.hpp"
 
 namespace eklib {
 

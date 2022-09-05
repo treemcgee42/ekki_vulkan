@@ -2,7 +2,7 @@
 // Created by Varun Malladi on 8/29/22.
 //
 
-#include "vulkan-backend/include/vkbe_renderer.hpp"
+#include "vkbe_renderer.hpp"
 #include "imgui_impl_vulkan.h"
 
 #include <iostream>

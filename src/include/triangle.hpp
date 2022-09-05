@@ -6,7 +6,8 @@
 
 #include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
-#include "vulkan-backend/legacy/lve_model.hpp"
+#include <string>
+#include <memory>
 
 namespace eklib {
 

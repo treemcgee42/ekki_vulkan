@@ -2,7 +2,7 @@
 // Created by Varun Malladi on 8/29/22.
 //
 
-#include "vulkan-backend/include/vkbe_render_pass.hpp"
+#include "vkbe_render_pass.hpp"
 
 namespace vkbe {
 

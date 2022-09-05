@@ -1,11 +1,10 @@
-#include "engine.hpp"
-#include "vulkan-backend/legacy/simple_render_system.hpp"
-#include "scene.hpp"
-#include "constants.hpp"
+#include "src/include/engine.hpp"
+#include "src/include/scene.hpp"
+#include "src/include/constants.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
-#include "gui.hpp"
+#include "src/include/gui.hpp"
 
 #include <iostream>
 

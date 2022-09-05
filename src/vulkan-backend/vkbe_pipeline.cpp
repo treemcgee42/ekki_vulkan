@@ -4,9 +4,9 @@
 
 #include <fstream>
 
-#include "vulkan-backend/include/vkbe_pipeline.hpp"
+#include "vkbe_pipeline.hpp"
 #include <glm/glm.hpp>
-#include "types.hpp"
+#include "src/include/types.hpp"
 #include "imgui.h"
 
 

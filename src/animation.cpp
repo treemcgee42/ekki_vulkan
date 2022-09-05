@@ -2,7 +2,7 @@
 // Created by Varun Malladi on 8/22/22.
 //
 
-#include "animation.hpp"
+#include "src/include/animation.hpp"
 
 namespace eklib {
 

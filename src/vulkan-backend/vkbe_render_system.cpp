@@ -2,7 +2,7 @@
 // Created by Varun Malladi on 8/29/22.
 //
 
-#include "vulkan-backend/include/vkbe_render_system.hpp"
+#include "vkbe_render_system.hpp"
 #include <glm/glm.hpp>
 
 namespace vkbe {
@@ -40,7 +40,7 @@ void VkbeRenderSystem::create_pipeline(VkRenderPass renderPass) {
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = pipeline_layout;
 
-    vkbe_pipeline = std::make_unique<VkbePipeline>(vkbe_device, "shaders/simple_shader.vert.spv","shaders/simple_shader.frag.spv", pipelineConfig);
+    vkbe_pipeline = std::make_unique<VkbePipeline>(vkbe_device, "src/shaders/simple_shader.vert.spv","src/shaders/simple_shader.frag.spv", pipelineConfig);
 }
 
 VkbeRenderSystem::VkbeRenderSystem(VkbeDevice &device, VkRenderPass renderPass):

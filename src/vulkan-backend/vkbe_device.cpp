@@ -2,8 +2,8 @@
 // Created by Varun Malladi on 8/28/22.
 //
 
-#include "vulkan-backend/include/vkbe_device.hpp"
-#include "vulkan-backend/include/vkbe_swap_chain.hpp"
+#include "vkbe_device.hpp"
+#include "vkbe_swap_chain.hpp"
 #include <iostream>
 #include <set>
 #include "imgui.h"
