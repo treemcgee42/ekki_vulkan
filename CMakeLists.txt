@@ -22,8 +22,6 @@ file(GLOB SOURCES
         libs/vma/vma_implementation.cpp
         src/vulkan-backend/include/*.hpp
         src/vulkan-backend/*.cpp
-        src/include/animation.hpp
-        src/animation.cpp
         src/include/constants.hpp
         src/include/triangle.hpp
         src/triangle.cpp
@@ -37,6 +35,10 @@ file(GLOB SOURCES
         src/include/meshes.hpp
         src/include/gui.hpp
         src/gui.cpp
+        src/include/animation.hpp
+        src/animation.cpp
+        src/include/timeline.hpp
+        src/timeline.cpp
 )
 add_executable(ekki ${SOURCES})
 set_target_properties(

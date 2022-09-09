@@ -16,6 +16,10 @@ A robust playback system should be able to determine which animations are active
 
 A few assumptions were in play. First, we assume that most scenes are relatively short. This assumption, and its specifics, is relevant because it determines how much memory the timeline requires. Another assumption is that most animations begin and end at second intervals. If a large number of animations didn't, it would be needlessly expensive to find the active animations at a frame during that second, since potentially many of the animations in that second are not active during that frame.
 
+## extensions
+
+- (object-animation map). This is a map that has objects as keys and their animations as values. There would be several applications of this. Instead of manually indicating what the start or end object is in the animation, this could be automatically determined. 
+
 ## potential optimizations
 
 - (adjusting the granularity). The 1-second intervals in the structure may not be the most appropriate for the scene, for example if many animations begin and end on (non-second) half-second intervals. A user could be able to adjust the structure to store active animations for every half-second, or this could be dynamically decided by the program. The cost of this optimization is memory.

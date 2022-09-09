@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <forward_list>
+#include <deque>
 
-#include "animation.hpp"
+#include "timeline.hpp"
 #include "triangle.hpp"
 #include "engine.hpp"
 
@@ -14,31 +14,44 @@ namespace eklib {
 
 class Scene {
 public:
+    Scene(float duration_);
     ~Scene() = default;
 
-    void update();
-
     /**
-     * Places the animation at the end of the animation queue, i.e. immediately after this function, that animation
-     * will be the last one to play.
+     * This adjusts the scene's internal current time variable, and updates any relevant fields. For example,
+     * the active animations list is updated to contain the animations which are active at the new current time.
      */
-    void add_animation(std::unique_ptr<Animation> animation);
-
-    void add_active_object(const std::shared_ptr<Triangle>& object);
-
+    void adjust_current_time(float new_time);
+    /**
+     * Increase the current time by some amount. If increasing it would cause the current time to exceed the scene's
+     * duration, then make the current time the scene duration (should represent the final frame).
+     */
+    void progress_current_time(float increment);
+    /**
+     * Essentially just inserts the animation into the timeline.
+     */
+    void add_animation(std::shared_ptr<Animation> animation);
     /**
      * Draws all of the active objects, according to the ordering of that underlying data structure.
      */
     void draw(Engine& engine, VkCommandBuffer commandBuffer);
 
     [[nodiscard]] int get_num_active_objects() const { return num_active_objects; }
-    [[nodiscard]] const std::string& get_active_object_name_by_index(uint32_t i) const;
-    [[nodiscard]] std::shared_ptr<Triangle> get_active_object_by_index(uint32_t i) const { return active_objects[i]; }
-    [[nodiscard]] int get_active_object_id_by_index(uint32_t i) const { return num_active_objects; }
+    [[nodiscard]] const char* get_active_object_name_by_index(uint32_t i) const;
+    // todo: devise a better way of doing this for the deque
+    [[nodiscard]] Triangle get_active_object_by_index(uint32_t i) const { return active_objects[i]; }
+    [[nodiscard]] int get_active_object_id_by_index(uint32_t i) const { return active_objects[i].get_id(); }
+    [[nodiscard]] float get_current_time() const { return current_time; }
+
 private:
-    std::list<std::unique_ptr<Animation>> animation_queue{std::list<std::unique_ptr<Animation>>()};
+    // how long the scene is
+    float duration;
+    // the scene's representation of how far along it is. This reflects, for example, what active objects are there.
+    float current_time;
+    std::unique_ptr<Timeline> timeline;
+    // these are updated every (new) frame
     int num_active_objects = 0;
-    std::vector<std::shared_ptr<Triangle>> active_objects{};
+    std::deque<Triangle> active_objects{};
 };
 
 }

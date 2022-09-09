@@ -92,42 +92,23 @@ void EkGui::create_object_list_window(eklib::Scene& scene) {
 
     static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 
-    ImGui::CheckboxFlags("ImGuiTableFlags_ScrollY", &flags, ImGuiTableFlags_ScrollY);
-
-//    static int selected = -1;
-//    for (int n = 0; n < 5; n++)
-//    {
-//        char buf[32];
-//        sprintf(buf, "Object %d", n);
-//        if (ImGui::Selectable(buf, selected == n))
-//            selected = n;
-//    }
-
-
-    // When using ScrollX or ScrollY we need to specify a size for our table container!
-    // Otherwise by default the table will fit all available space, like a BeginChild() call.
     ImVec2 outer_size = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 8);
-    if (ImGui::BeginTable("table_scrolly", 1, flags, outer_size))
-    {
-
-
-        // Demonstrate using clipper for large vertical lists
+    if (ImGui::BeginTable("table_scrolly", 1, flags, outer_size)) {
         ImGuiListClipper clipper;
-        clipper.Begin(scene.get_num_active_objects());
+        auto num_active_objects = scene.get_num_active_objects();
+        clipper.Begin(num_active_objects);
+        if (num_active_objects == 0) { selected_object_index_in_active_objects = -1; }
         while (clipper.Step()) {
             for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
-                auto active_object_id = row;
-                const bool item_is_selected = (active_object_id == selected_object_index_in_active_objects);
+                const bool item_is_selected = (row == selected_object_index_in_active_objects);
 
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
 
-                auto label = scene.get_active_object_name_by_index(static_cast<uint32_t>(row)).c_str();
+                auto label = scene.get_active_object_name_by_index(static_cast<uint32_t>(row));
                 if (ImGui::Selectable(label, item_is_selected)) {
-                    std::cout << "object " << active_object_id << " is selected\n";
-                    selected_object_index_in_active_objects = active_object_id;
+                    selected_object_index_in_active_objects = row;
                 }
-
             }
         }
         ImGui::EndTable();
@@ -144,25 +125,35 @@ void EkGui::create_object_editor_window(eklib::Scene& scene) {
     } else {
         auto active_object = scene.get_active_object_by_index(selected_object_index_in_active_objects);
 
-        obj_editor_scale = active_object->getScale();
-        auto active_object_position = active_object->getTranslation();
+        obj_editor_scale = active_object.getScale();
+        auto active_object_position = active_object.getTranslation();
         obj_editor_position2[0] = active_object_position[0];
         obj_editor_position2[1] = active_object_position[1];
-        auto active_object_color = active_object->get_color();
+        auto active_object_color = active_object.get_color();
         obj_editor_color4[0] = active_object_color[0];
         obj_editor_color4[1] = active_object_color[1];
         obj_editor_color4[2] = active_object_color[2];
         obj_editor_color4[3] = active_object_color[3];
 
-        ImGui::Text("name: %s", scene.get_active_object_name_by_index(selected_object_index_in_active_objects).c_str());
+        ImGui::Text("name: %s", scene.get_active_object_name_by_index(selected_object_index_in_active_objects));
         ImGui::InputFloat("scale", &obj_editor_scale, 0.1f);
         ImGui::InputFloat2("position", obj_editor_position2);
         ImGui::ColorEdit4("color", obj_editor_color4);
 
-        active_object->scale_absolute(obj_editor_scale);
-        active_object->translate_absolute(obj_editor_position2[0], obj_editor_position2[1]);
-        active_object->set_color(obj_editor_color4[0], obj_editor_color4[1], obj_editor_color4[2], obj_editor_color4[3]);
+        active_object.scale_absolute(obj_editor_scale);
+        active_object.translate_absolute(obj_editor_position2[0], obj_editor_position2[1]);
+        active_object.set_color(obj_editor_color4[0], obj_editor_color4[1], obj_editor_color4[2], obj_editor_color4[3]);
     }
+
+    ImGui::End();
+}
+
+void EkGui::create_timeline_window(eklib::Scene& scene) {
+    ImGui::Begin("timeline");
+
+    float scene_time = scene.get_current_time();
+    ImGui::InputFloat("scene time", &scene_time, 0.25f);
+    scene.adjust_current_time(scene_time);
 
     ImGui::End();
 }
@@ -194,41 +185,9 @@ ImDrawData* EkGui::get_imgui_draw_data(bool *show_demo_window, bool *show_anothe
     if (*show_demo_window)
         ImGui::ShowDemoWindow(show_demo_window);
 
-    // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-    {
-        static float f = 0.0f;
-        static int counter = 0;
-
-        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-        ImGui::Checkbox("Demo Window", show_demo_window);      // Edit bools storing our window open/close state
-        ImGui::Checkbox("Another Window", show_another_window);
-
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::ColorEdit3("clear color", (float*)clear_color); // Edit 3 floats representing a color
-
-        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-            counter++;
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", counter);
-
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        ImGui::End();
-    }
-
-    // 3. Show another simple window.
-    if (show_another_window)
-    {
-        ImGui::Begin("Another Window", show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-        ImGui::Text("Hello from another window!");
-        if (ImGui::Button("Close Me"))
-            *show_another_window = false;
-        ImGui::End();
-    }
-
     create_object_list_window(scene);
     create_object_editor_window(scene);
+    create_timeline_window(scene);
 
     ImGui::Render();
     return ImGui::GetDrawData();

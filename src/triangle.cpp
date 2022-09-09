@@ -8,10 +8,6 @@ namespace eklib {
 
 uint32_t Triangle::object_count = 0;
 
-float Triangle::getScale() { return scale; }
-glm::vec2 Triangle::getTranslation() { return translation; }
-float Triangle::getTranslationComponent(int i) { return translation[i]; }
-
 void Triangle::scale_absolute(float s) { scale = s; }
 void Triangle::scale_relative(float s) { scale = scale * s; }
 
@@ -24,8 +20,9 @@ void Triangle::set_color(float r, float g, float b, float a) {
     color = {r, g, b, a};
 }
 
-glm::vec4 Triangle::get_color() { return color; }
-
-
+std::shared_ptr<Triangle> Triangle::copy(const std::shared_ptr<Triangle>& other) {
+    auto the_copy = *other;
+    return std::make_shared<Triangle>(the_copy);
+}
 
 }

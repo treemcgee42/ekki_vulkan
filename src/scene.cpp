@@ -5,6 +5,8 @@
 #include "src/include/scene.hpp"
 #include "src/include/constants.hpp"
 
+#include <iostream>
+
 namespace eklib {
 
 struct SimplePushConstantData {
@@ -12,20 +14,21 @@ struct SimplePushConstantData {
     glm::vec4 color{1, 0, 0, 1};
 };
 
-void Scene::add_animation(std::unique_ptr<Animation> animation) {
-    animation_queue.push_back(std::move(animation));
+Scene::Scene(float duration_):
+    duration{duration_},
+    current_time{0},
+    timeline{std::make_unique<Timeline>(duration_)}
+{}
+
+void Scene::add_animation(std::shared_ptr<Animation> animation) {
+    timeline->insert(animation);
 }
 
-void Scene::add_active_object(const std::shared_ptr<Triangle>& object) {
-    active_objects.push_back(object);
-    num_active_objects++;
-}
 
-const std::string& Scene::get_active_object_name_by_index(uint32_t i) const {
-    auto obj = active_objects[i];
-    // TODO: handle out of bounds
+const char* Scene::get_active_object_name_by_index(uint32_t i) const {
+    assert(i < num_active_objects);
 
-    return obj->get_name();
+    return active_objects[i].get_name().c_str();
 }
 
 void Scene::draw(Engine& engine, VkCommandBuffer commandBuffer) {
@@ -33,16 +36,16 @@ void Scene::draw(Engine& engine, VkCommandBuffer commandBuffer) {
 
     for (const auto& obj : active_objects) {
         SimplePushConstantData push{};
-        glm::mat4 scale_matrix{obj->getScale()};
+        glm::mat4 scale_matrix{obj.getScale()};
         scale_matrix[3] = {0, 0, 0, 1};
         glm::mat4 translation_matrix = {
                 {1.0, 0, 0, 0},
                 {0, 1.0, 0, 0},
                 {0, 0, 1.0, 0},
-                {obj->getTranslationComponent(0), obj->getTranslationComponent(1), 0, 1}
+                {obj.getTranslationComponent(0), obj.getTranslationComponent(1), 0, 1}
         };
         push.model_matrix = translation_matrix * scale_matrix;
-        push.color = obj->get_color();
+        push.color = obj.get_color();
 
         vkCmdPushConstants(commandBuffer, engine.vkbe_render_system.pipeline_layout,
                            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
@@ -54,21 +57,23 @@ void Scene::draw(Engine& engine, VkCommandBuffer commandBuffer) {
     }
 }
 
-/**
- * Represents a "tick" update. According to the game loop model, this tick is always
- * of length `MS_PER_UPDATE`.
- */
-void Scene::update() {
-    if (animation_queue.empty()) { return; }
+void Scene::adjust_current_time(float new_time) {
+    if (current_time == new_time) { return; }
 
-    std::unique_ptr<Animation> &current_animation = animation_queue.front();
-
-    current_animation->update();
-    current_animation->decrement_remaining_duration(MS_PER_UPDATE);
-
-    if (current_animation->get_remaining_duration() < 0) {
-        animation_queue.pop_front();
+    active_objects.clear();
+    num_active_objects = 0;
+    auto active_animations = timeline->get_active_animations(new_time);
+    for (const auto& animation : active_animations) {
+        active_objects.push_back(animation->get_object(new_time));
+        num_active_objects++;
     }
+
+    current_time = new_time;
+}
+
+void Scene::progress_current_time(float increment) {
+    auto new_time = std::min(duration, current_time + increment);
+    adjust_current_time(new_time);
 }
 
 }

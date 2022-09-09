@@ -33,6 +33,7 @@ private:
 
     void create_object_list_window(eklib::Scene& scene);
     void create_object_editor_window(eklib::Scene& scene);
+    void create_timeline_window(eklib::Scene& scene);
 };
 
 

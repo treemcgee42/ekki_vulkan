@@ -5,6 +5,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 #include "src/include/gui.hpp"
+#include "src/include/animation.hpp"
 
 #include <iostream>
 
@@ -30,10 +31,12 @@ void do_scene(eklib::Engine& engine, EkGui& ekgui, eklib::Scene& scene) {
         prev_time = current_time;
 
         // UPDATE ANIMATIONS
+        int multiples = 0;
         while (time_diff >= eklib::MS_PER_UPDATE) {
             time_diff -= eklib::MS_PER_UPDATE;
-            scene.update();
+            multiples++;
         }
+        scene.progress_current_time(multiples * eklib::MS_PER_UPDATE);
 
         // GUI
         auto main_draw_data = ekgui.get_imgui_draw_data(&show_demo_window, &show_another_window, &clear_color, scene);
@@ -56,29 +59,41 @@ int main() {
     EkGui ekgui{engine};
 
     // Create scene
-    eklib::Scene scene1{};
+    eklib::Scene scene1{6};
 
     auto t1 = eklib::Triangle::create();
     t1->set_name("triangle 1");
-    t1->scale_absolute(0.25);
+    t1->scale_absolute(0);
     t1->translate_absolute(-0.5, 0.5);
 
     auto t2 = eklib::Triangle::create();
     t2->set_name("triangle 2");
-    t2->scale_absolute(0.5);
+    t2->scale_absolute(0);
     t2->translate_absolute(0.5, -0.5);
 
     auto t3 = eklib::Triangle::create();
     t3->set_name("triangle 3");
-    t3->scale_absolute(0.25);
+    t3->scale_absolute(0);
     t3->set_color(0.0, 1.0, 0.0, 0.1);
 
-    scene1.add_animation(eklib::ScaleIn::create(t3, 5));
-    scene1.add_animation(eklib::LinearShift::create(t3, {-0.25, 0.25}, 5));
+    scene1.add_animation(eklib::ScaleTo::create(t1, 0.75, 0.5, 2));
+    scene1.add_animation(eklib::LinearShift::create(t1, {-0.25, -0.75}, 2, 3.5));
+    scene1.add_animation(eklib::LinearShift::create(t1, {-0.25, 0.25}, 3.5, 4));
+    scene1.add_animation(eklib::ScaleTo::create(t1, 0.1, 4, 6));
 
-    scene1.add_active_object(t1);
-    scene1.add_active_object(t2);
-    scene1.add_active_object(t3);
+    scene1.add_animation(eklib::ScaleTo::create(t2, 0.5, 1, 3));
+    scene1.add_animation(eklib::LinearShift::create(t2, {0.5, -0.25}, 3, 4));
+    scene1.add_animation(eklib::LinearShift::create(t2, {0.2, 0.3}, 4, 5));
+    scene1.add_animation(eklib::ScaleTo::create(t2, 0.25, 5, 6));
+
+    scene1.add_animation(eklib::ScaleTo::create(t3, 0.25, 0, 1));
+    scene1.add_animation(eklib::LinearShift::create(t3, {-0.25, 0.25}, 1, 3));
+    scene1.add_animation(eklib::LinearShift::create(t3, {0.25, -0.25}, 3, 5));
+    scene1.add_animation(eklib::ScaleTo::create(t3, 0.5, 5, 6));
+
+//    scene1.add_active_object(t1);
+//    scene1.add_active_object(t2);
+//    scene1.add_active_object(t3);
 
     do_scene(engine, ekgui, scene1);
 

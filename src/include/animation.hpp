@@ -1,80 +1,83 @@
 //
-// Created by Varun Malladi on 8/22/22.
+// Created by Varun Malladi on 9/5/22.
 //
 
 #pragma once
 
-#include <list>
-#include <memory>
-#include <optional>
-#include <utility>
 #include "triangle.hpp"
 
 namespace eklib {
 
-/**
- * How to achieve animation of several objects at the same time?
- */
+struct AnimationCreateInfo {
+    float start_time;
+    float end_time;
+    std::shared_ptr<Triangle> initial_state;
+    std::shared_ptr<Triangle> final_state;
+};
+
 class Animation {
 public:
-    /**
-     * Rarely, if ever, do you want to directly construct an `Animation` object,
-     * since to use it you will likely need to call `add_child` on it, and you
-     * will need a unique pointer to do that (see `create()`).
-     *
-     * Perhaps the one exception is in creating the overall scene object.
-     */
-    explicit Animation(double duration):
-        total_duration{duration},
-        remaining_duration{duration}
-    {}
-    explicit Animation(std::shared_ptr<Triangle> obj, double duration):
-        acting_on{obj},
-        total_duration{duration},
-        remaining_duration{duration}
-    {}
-
     Animation(const Animation &) = delete;
     void operator=(const Animation &) = delete;
 
-    virtual void update() {}
-
-    [[nodiscard]] double get_remaining_duration() const { return remaining_duration; }
-    void decrement_remaining_duration(double amount) { remaining_duration -= amount; }
-private:
-    std::list<std::unique_ptr<Animation>> children{std::list<std::unique_ptr<Animation>>()};
-protected:
-    const std::optional<std::shared_ptr<Triangle>> acting_on;
-    const double total_duration;
-    double remaining_duration;
-};
-
-/**
- * Represents the animation where an objects grows in scale from 0 to its original scale.
- */
-class ScaleIn: public Animation {
-public:
-    ScaleIn(std::shared_ptr<Triangle> t, double duration): Animation{std::move(t), duration} {}
-
-    void update() override;
+    /**
+     * We return a new `Triangle` instead of a pointer to an existing one because this function will almost
+     * always involve calculating new properties of the initial/final state triangles, and we do not want those
+     * to change between calls.
+     */
+    virtual Triangle get_object(float at_time) { return Triangle{}; }
 
     /**
-     * The object is passed as a const reference because the function itself need not increase the reference
-     * count. The subtlety is that the constructor to `Animation` class will copy by value and increase the
-     * reference count, since it must retain and mutate the object.
+     * By changing the initial state, this function also modifies other fields accordingly, for example
+     * by also changing the final state.
      */
-    static std::unique_ptr<ScaleIn> create(const std::shared_ptr<Triangle>& t, double duration);
+    virtual void change_initial_state(const std::shared_ptr<Triangle>& new_initial_state) {}
+
+    [[nodiscard]] float get_start_time() const { return start_time; }
+    [[nodiscard]] float get_end_time() const { return end_time; }
+    [[nodiscard]] std::shared_ptr<Triangle> get_final_state() const { return final_state; }
+    [[nodiscard]] uint32_t get_object_id() const { return object_id; }
+
+protected:
+    Animation() = default;
+    void populate(AnimationCreateInfo& info);
+
+    float start_time = -1;
+    float end_time = -1;
+    uint32_t object_id = -1;
+    std::shared_ptr<Triangle> initial_state = nullptr;
+    std::shared_ptr<Triangle> final_state = nullptr;
 };
 
 class LinearShift: public Animation {
 public:
-    LinearShift(std::shared_ptr<Triangle> t, const glm::vec2& shift, double duration);
-    static std::unique_ptr<LinearShift> create(const std::shared_ptr<Triangle>& t, const glm::vec2& target, double duration);
+    LinearShift() = delete;
+    static std::shared_ptr<LinearShift> create(std::shared_ptr<Triangle>& initial_state, glm::vec2 target_position, float start_time, float end_time);
 
-    void update() override;
+    void change_initial_state(const std::shared_ptr<Triangle>& new_initial_state) override;
+
+    Triangle get_object(float at_time) override;
+
+protected:
+    LinearShift(std::shared_ptr<Triangle>& initial_state, glm::vec2 target_position, float start_time, float end_time);
+
 private:
-    const glm::vec2 target_position;
-    std::function<glm::vec2(float)> translation_func;
+    glm::vec2 target_position;
+};
+
+class ScaleTo: public Animation {
+public:
+    ScaleTo() = delete;
+    static std::shared_ptr<ScaleTo> create(std::shared_ptr<Triangle>& initial_state, float target_scale, float start_time_, float end_time_);
+
+    Triangle get_object(float at_time) override;
+    void change_initial_state(const std::shared_ptr<Triangle>& new_initial_state) override;
+
+protected:
+    ScaleTo(std::shared_ptr<Triangle>& initial_state, float target_scale, float start_time_, float end_time_);
+
+private:
+    float target_scale;
 };
 
 }
