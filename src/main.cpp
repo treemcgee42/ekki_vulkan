@@ -4,7 +4,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
-#include "src/include/gui.hpp"
+#include "src/gui/include/gui.hpp"
 #include "src/include/animation.hpp"
 
 #include <iostream>

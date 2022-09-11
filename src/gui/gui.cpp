@@ -1,5 +1,8 @@
-#include "src/include/gui.hpp"
+#include "src/gui/include/gui.hpp"
 #include <iostream>
+
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "imgui_internal.h"
 
 static void check_vk_result(VkResult err) {
     if (err == 0)
@@ -151,9 +154,21 @@ void EkGui::create_object_editor_window(eklib::Scene& scene) {
 void EkGui::create_timeline_window(eklib::Scene& scene) {
     ImGui::Begin("timeline");
 
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    auto canvasPos = ImGui::GetCursorScreenPos();            // ImDrawList API uses screen coordinates!
+    auto canvasSize = ImGui::GetContentRegionAvail();        // Resize canvas to what's available
+    const ImU32 canvasColor = IM_COL32(32, 32, 32, 255);
+    drawList->AddRectFilled(canvasPos, canvasPos + canvasSize, canvasColor);
+
     float scene_time = scene.get_current_time();
     ImGui::InputFloat("scene time", &scene_time, 0.25f);
     scene.adjust_current_time(scene_time);
+
+    // draw ruler
+
+    auto ruler_start_position = canvasPos;
+    auto ruler_end_position = ruler_start_position + ImVec2(canvasSize.x, 20);
+    drawList->AddRectFilled(ruler_start_position, ruler_end_position, IM_COL32(255, 0, 0, 255));
 
     ImGui::End();
 }
@@ -162,11 +177,19 @@ void EkGui::create_timeline_window(eklib::Scene& scene) {
 // ----- Public functions --------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------
 
-EkGui::EkGui(eklib::Engine& engine_): engine{engine_} {
+EkGui::EkGui(eklib::Engine& engine_):
+    engine{engine_},
+    timeline{nullptr}
+{
     setup_imgui_context();
     setup_imgui_style();
     setup_imgui_backend();
     load_imgui_fonts();
+
+    // initialize timeline
+    ekgui::TimelineCreateInfo info{};
+    info.distance_between_seconds = 100;
+    timeline = std::make_unique<ekgui::Timeline>(info);
 }
 
 EkGui::~EkGui() {
@@ -187,7 +210,8 @@ ImDrawData* EkGui::get_imgui_draw_data(bool *show_demo_window, bool *show_anothe
 
     create_object_list_window(scene);
     create_object_editor_window(scene);
-    create_timeline_window(scene);
+    //create_timeline_window(scene);
+    timeline->draw(scene);
 
     ImGui::Render();
     return ImGui::GetDrawData();

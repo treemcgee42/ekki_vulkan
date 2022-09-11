@@ -33,8 +33,10 @@ file(GLOB SOURCES
         src/types.cpp
         src/meshes.cpp
         src/include/meshes.hpp
-        src/include/gui.hpp
-        src/gui.cpp
+        src/gui/include/timeline.hpp
+        src/gui/timeline.cpp
+        src/gui/include/gui.hpp
+        src/gui/gui.cpp
         src/include/animation.hpp
         src/animation.cpp
         src/include/timeline.hpp

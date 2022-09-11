@@ -42,6 +42,7 @@ public:
     [[nodiscard]] Triangle get_active_object_by_index(uint32_t i) const { return active_objects[i]; }
     [[nodiscard]] int get_active_object_id_by_index(uint32_t i) const { return active_objects[i].get_id(); }
     [[nodiscard]] float get_current_time() const { return current_time; }
+    [[nodiscard]] float get_duration() const { return duration; }
 
 private:
     // how long the scene is

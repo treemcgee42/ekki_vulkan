@@ -7,9 +7,10 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
-#include "engine.hpp"
-#include "scene.hpp"
-#include "triangle.hpp"
+#include "src/include/engine.hpp"
+#include "src/include/scene.hpp"
+#include "src/include/triangle.hpp"
+#include "src/gui/include/timeline.hpp"
 
 class EkGui {
 public:
@@ -21,6 +22,7 @@ private:
     ImGuiIO *io;
     eklib::Engine& engine;
     int selected_object_index_in_active_objects = -1;
+    std::unique_ptr<ekgui::Timeline> timeline;
 
     float obj_editor_scale = 1.0;
     float obj_editor_position2[2];
