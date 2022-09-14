@@ -35,17 +35,16 @@ void Timeline::draw(eklib::Scene& scene) {
 //    scene.adjust_current_time(scene_time);
 
     // draw ruler
-    draw_ruler();
+    draw_ruler(scene);
 
-    // draw current time marker
-    auto ct = scene.get_current_time();
+
 
 
     ImGui::EndChild();
     ImGui::End();
 }
 
-void Timeline::draw_ruler() {
+void Timeline::draw_ruler(eklib::Scene& scene) {
     auto distance_between_ticks = distance_between_seconds / 4;
 
     // body of the ruler
@@ -102,8 +101,33 @@ void Timeline::draw_ruler() {
         tick_type = (tick_type + 1) % 4;
     }
 
-    // draw time text for major ticks (e.g. second ticks)
+    // draw current time marker
+    // 1. check if that time is currently visible on the timeline. only continue if it is.
+    // 2. determine the time the first tick represents, and its offset
+    // 3. draw at (ticks between first tick and current time) * distance between ticks + first tick offset
+    auto ct = scene.get_current_time();
+    float current_time_tick = ct * 4;
+    auto ct_tick_p1 = ruler_start_position.x + (current_time_tick - scroll_x_tick) * distance_between_ticks;
 
+    auto ct_tick_start = ImVec2(ct_tick_p1, ruler_start_position.y);
+    auto ct_tick_end = ImVec2(ct_tick_p1 + tick_width, (canvas_tl_corner + canvas_size).y);
+
+    drawList->AddRectFilled(
+        ct_tick_start,
+        ct_tick_end,
+        IM_COL32(0, 0, 255, 255)
+    );
+
+    // adjust scene time based on a click
+    if (ImGui::IsMouseClicked(0)) {
+
+
+        // get time of where clicked and adjust scene time
+        auto mouse_x = ImGui::GetMousePos().x - canvas_tl_corner.x;
+        auto time = ((mouse_x - first_tick_x) / distance_between_ticks) * 0.25 + first_tick / 4;
+        //std::cout << "clicked at " << mouse_x << ", time: " << time << "\n";
+        scene.adjust_current_time(time);
+    }
 }
 
 }

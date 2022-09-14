@@ -31,7 +31,7 @@ private:
     float second_tick_length = 15;
     ImU32 tick_color = IM_COL32(0, 255, 0, 255);
 
-    void draw_ruler();
+    void draw_ruler(eklib::Scene& scene);
 };
 
 }
