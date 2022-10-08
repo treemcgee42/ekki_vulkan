@@ -72,6 +72,8 @@ void Scene::adjust_current_time(float new_time) {
 }
 
 void Scene::progress_current_time(float increment) {
+    if (!is_playing) { return; }
+
     auto new_time = std::min(duration, current_time + increment);
     adjust_current_time(new_time);
 }

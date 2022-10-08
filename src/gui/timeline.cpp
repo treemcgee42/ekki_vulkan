@@ -36,7 +36,7 @@ void Timeline::draw(eklib::Scene& scene) {
 
     // draw ruler
     draw_ruler(scene);
-
+    draw_sidebar(scene);
 
 
 
@@ -53,7 +53,7 @@ void Timeline::draw_ruler(eklib::Scene& scene) {
     const auto distance_between_ticks = distance_between_major_ticks / 4;
 
     // ===== Body of the ruler
-    const auto ruler_start_position = canvas_tl_corner;
+    const auto ruler_start_position = canvas_tl_corner + ImVec2(sidebar_width, 0);
     const auto ruler_end_position = ruler_start_position + ImVec2(canvas_size.x, ruler_height);
     drawList->AddRectFilled(ruler_start_position, ruler_end_position, ruler_body_color);
 
@@ -121,13 +121,59 @@ void Timeline::draw_ruler(eklib::Scene& scene) {
     // adjust based on a left click
     const auto mouse_pos = ImGui::GetMousePos();
     if (ImGui::IsMouseClicked(0)) {
-        if (mouse_pos.x > canvas_tl_corner.x && mouse_pos.x < canvas_br_corner.x && mouse_pos.y > canvas_tl_corner.y && mouse_pos.y < canvas_br_corner.y) {
+        if (mouse_pos.x > canvas_tl_corner.x + sidebar_width && mouse_pos.x < canvas_br_corner.x && mouse_pos.y > canvas_tl_corner.y && mouse_pos.y < canvas_br_corner.y - 20) {
             const auto mouse_x = ImGui::GetMousePos().x - canvas_tl_corner.x;
             const auto time = ((mouse_x - first_tick_x) / distance_between_ticks) * seconds_per_tick +
                               first_tick * seconds_per_tick;
             scene.adjust_current_time(time);
         }
     }
+}
+
+void Timeline::draw_sidebar(eklib::Scene& scene) {
+    const float icon_padding = 5.f;
+    const auto mouse_pos = ImGui::GetMousePos();
+
+    // ===== Sidebar outline
+    const auto sidebar_tl_corner = canvas_tl_corner;
+    const auto sidebar_br_corner = ImVec2(canvas_tl_corner.x + sidebar_width, canvas_br_corner.y);
+    drawList->AddRectFilled(sidebar_tl_corner, sidebar_br_corner, IM_COL32(32, 32, 32, 255));
+
+    const bool mouse_pos_within_sidebar =
+            mouse_pos.x > sidebar_tl_corner.x &&
+            mouse_pos.x < sidebar_br_corner.x &&
+            mouse_pos.y < sidebar_br_corner.y &&
+            mouse_pos.y > sidebar_tl_corner.y;
+#define mouse_pos_in_button(button_index) (\
+mouse_pos_within_sidebar && \
+mouse_pos.y > sidebar_tl_corner.y + (button_index)*sidebar_width && \
+mouse_pos.y < sidebar_tl_corner.y + ((button_index)+1)*sidebar_width)
+
+    // ===== Play / pause button
+    const int button_index = 0; // first button
+    if (mouse_pos_in_button(button_index)) {
+        if (ImGui::IsMouseClicked(0)) {
+            is_playing = !is_playing;
+            scene.is_playing = is_playing;
+        }
+    }
+
+    if (!is_playing) {
+        const auto play_color = ImColor(0.f, 1.f, 0.f);
+        const auto play_triangle_v0 = ImVec2(sidebar_tl_corner.x + icon_padding, sidebar_tl_corner.y + icon_padding);
+        const auto play_triangle_v1 = ImVec2(play_triangle_v0.x, play_triangle_v0.y + sidebar_width - 2*icon_padding);
+        const auto play_triangle_v2 = ImVec2(sidebar_br_corner.x - icon_padding, sidebar_tl_corner.y + 0.5f*sidebar_width);
+        drawList->AddTriangleFilled(play_triangle_v0, play_triangle_v1, play_triangle_v2, play_color);
+    } else {
+        const auto stop_color = ImColor(1.f, 0.f, 0.f);
+        const auto stop_button_tl_corner = ImVec2(sidebar_tl_corner.x + icon_padding, sidebar_tl_corner.y + button_index*sidebar_width + icon_padding);
+        const auto stop_button_br_corner = ImVec2(sidebar_br_corner.x - icon_padding, stop_button_tl_corner.y + sidebar_width - 2*icon_padding);
+        drawList->AddRectFilled(stop_button_tl_corner, stop_button_br_corner, stop_color);
+    }
+
+
+
+
 }
 
 }

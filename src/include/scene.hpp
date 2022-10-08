@@ -14,6 +14,8 @@ namespace eklib {
 
 class Scene {
 public:
+    bool is_playing = false;
+
     Scene(float duration_);
     ~Scene() = default;
 

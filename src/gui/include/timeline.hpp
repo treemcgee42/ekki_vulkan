@@ -37,8 +37,11 @@ private:
     int ruler_zoom = -1;
     int ruler_zoom_min = -1;
     int ruler_zoom_max = 6;
+    const float sidebar_width = 20.f;
+    bool is_playing = false;
 
     void draw_ruler(eklib::Scene& scene);
+    void draw_sidebar(eklib::Scene& scene);
 };
 
 }
