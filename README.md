@@ -1,4 +1,9 @@
 # ekki
+
+**UPDATE**
+
+The goal of this project has merged with another of mine, also called `ekki`. See there for future updates.
+
 **an educational animation library**
 
 This project was inspired by my particular use of the `manim` library. Making videos primarily on abstract, pure math, I found that I didn't utilize many of the features in `manim`, such as graphing. I mostly used the ability to present text and draw shapes. While `manim` is incredible, there were a few drawbacks I'd found in my use of it:
